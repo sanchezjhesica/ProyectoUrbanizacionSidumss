@@ -15,35 +15,35 @@
         </div>
     </div>
 
-    <!-- 2. CARRUSEL DE IMÁGENES -->
-    <div class="row mb-5">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
-                <div id="carouselUrbanizacion" class="carousel slide" data-bs-ride="carousel">
-                    <div class="carousel-indicators">
-                        <button type="button" data-bs-target="#carouselUrbanizacion" data-bs-slide-to="0" class="active"></button>
-                        <button type="button" data-bs-target="#carouselUrbanizacion" data-bs-slide-to="1"></button>
-                        <button type="button" data-bs-target="#carouselUrbanizacion" data-bs-slide-to="2"></button>
+<!-- 2. CARRUSEL DE IMÁGENES -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+            <div id="carouselUrbanizacion" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-indicators">
+                    <button type="button" data-bs-target="#carouselUrbanizacion" data-bs-slide-to="0" class="active"></button>
+                    <button type="button" data-bs-target="#carouselUrbanizacion" data-bs-slide-to="1"></button>
+                    <button type="button" data-bs-target="#carouselUrbanizacion" data-bs-slide-to="2"></button>
+                </div>
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <img src="{{ asset('img/img1.jpeg') }}" class="d-block w-100 img-carousel-hero" alt="Imagen 1">
+                        <div class="carousel-caption custom-caption">
+                            <h4 class="fw-bold mb-0">SIDUMSS NORTE A</h4>
+                            <p class="mb-0 opacity-75">Sistema de Gestión Residencial</p>
+                        </div>
                     </div>
-                    <div class="carousel-inner">
-                        <div class="carousel-item active">
-                            <img src="{{ asset('img/logo.jpg') }}" class="d-block w-100 img-carousel-hero" alt="Imagen 1">
-                            <div class="carousel-caption custom-caption">
-                                <h4 class="fw-bold mb-0">SIDUMSS NORTE A</h4>
-                                <p class="mb-0 opacity-75">Sistema de Gestión Residencial</p>
-                            </div>
-                        </div>
-                        <div class="carousel-item">
-                            <img src="{{ asset('img/u2.jpg') }}" class="d-block w-100 img-carousel-hero" alt="Imagen 2" onerror="this.src='https://placehold.co/1200x400?text=Áreas+Recreativas'">
-                        </div>
-                        <div class="carousel-item">
-                            <img src="{{ asset('img/u3.jpg') }}" class="d-block w-100 img-carousel-hero" alt="Imagen 3" onerror="this.src='https://placehold.co/1200x400?text=Seguridad+24/7'">
-                        </div>
+                    <div class="carousel-item">
+                        <img src="{{ asset('img/img2.jpeg') }}" class="d-block w-100 img-carousel-hero" alt="Imagen 2">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="{{ asset('img/img3.jpeg') }}" class="d-block w-100 img-carousel-hero" alt="Imagen 3">
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
     <!-- 3. SECCIÓN DE FINANZAS (SIN FONDO, CON TARJETAS LIMPIAS) -->
     <div class="row g-4 mb-5">
