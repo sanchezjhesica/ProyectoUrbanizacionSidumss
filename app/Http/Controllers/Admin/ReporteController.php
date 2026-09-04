@@ -21,7 +21,6 @@ class ReporteController extends Controller
      */
     public function index()
     {
-        // 1. Cálculos de INGRESOS (Usando total_remesa)
         $ingAgua = CobroAgua::where('estado_pago', 'Pagado')->sum('total_pagar');
         $ingMante = CobroMantenimiento::where('estado_pago', 'Pagado')->sum('monto_fijo');
         $ingRemesas = CobroRemesa::where('estado_pago', 'Pagado')->sum('total_remesa');
@@ -33,15 +32,12 @@ class ReporteController extends Controller
         $totalPendiente = CobroAgua::where('estado_pago', 'Pendiente')->sum('total_pagar');
         $totalUsuarios = User::where('id_rol', 3)->count();
 
-        // 2. Unificar ingresos para la tabla
         $detallesAgua = CobroAgua::with('vivienda')->where('estado_pago', 'Pagado')->get()->map(function($i){
             return (object)[ 'fecha' => $i->fecha_pago, 'casa' => $i->vivienda->nro_casa, 'concepto' => 'Agua '.$i->mes.'/'.$i->anio, 'monto' => $i->total_pagar ];
         });
-
         $detallesMante = CobroMantenimiento::with('vivienda')->where('estado_pago', 'Pagado')->get()->map(function($i){
             return (object)[ 'fecha' => $i->fecha_pago, 'casa' => $i->vivienda->nro_casa, 'concepto' => 'Mante. '.$i->mes.'/'.$i->anio, 'monto' => $i->monto_fijo ];
         });
-
         $detallesRemesas = CobroRemesa::with('vivienda')->where('estado_pago', 'Pagado')->get()->map(function($i){
             return (object)[ 'fecha' => $i->fecha_pago, 'casa' => $i->vivienda->nro_casa, 'concepto' => 'Remesa '.$i->mes.'/'.$i->anio, 'monto' => $i->total_remesa ];
         });
@@ -60,7 +56,6 @@ class ReporteController extends Controller
         $ingAgua = CobroAgua::where('estado_pago', 'Pagado')->sum('total_pagar');
         $ingMante = CobroMantenimiento::where('estado_pago', 'Pagado')->sum('monto_fijo');
         $ingRemesas = CobroRemesa::where('estado_pago', 'Pagado')->sum('total_remesa');
-        
         $totalIngresos = $ingAgua + $ingMante + $ingRemesas;
         $totalEgresos = Egreso::sum('monto');
         $saldoCaja = $totalIngresos - $totalEgresos;
@@ -83,32 +78,7 @@ class ReporteController extends Controller
     }
 
     /**
-     * Reporte de Morosidad
-     */
-    public function morosidad()
-    {
-        $morosos = Vivienda::with('propietario')
-            ->whereHas('cobrosAgua', function($q) { $q->where('estado_pago', 'Pendiente'); })
-            ->orWhereHas('cobrosMantenimiento', function($q) { $q->where('estado_pago', 'Pendiente'); })
-            ->orWhereHas('cobrosRemesas', function($q) { $q->where('estado_pago', 'Pendiente'); })
-            ->get();
-
-        foreach ($morosos as $v) {
-            $dA = CobroAgua::where('id_vivienda', $v->id_vivienda)->where('estado_pago', 'Pendiente')->sum('total_pagar');
-            $dM = CobroMantenimiento::where('id_vivienda', $v->id_vivienda)->where('estado_pago', 'Pendiente')->sum('monto_fijo');
-            $dR = CobroRemesa::where('id_vivienda', $v->id_vivienda)->where('estado_pago', 'Pendiente')->sum('total_remesa');
-            
-            $v->total_deuda = $dA + $dM + $dR;
-            $v->cantidad_avisos = CobroAgua::where('id_vivienda', $v->id_vivienda)->where('estado_pago', 'Pendiente')->count() +
-                                 CobroMantenimiento::where('id_vivienda', $v->id_vivienda)->where('estado_pago', 'Pendiente')->count() +
-                                 CobroRemesa::where('id_vivienda', $v->id_vivienda)->where('estado_pago', 'Pendiente')->count();
-        }
-
-        return view('admin.reportes.morosidad', compact('morosos'));
-    }
-
-    /**
-     * Reporte por Vivienda Individual
+     * Reporte por Vivienda (Vista Web)
      */
     public function porVivienda(Request $request)
     {
@@ -121,11 +91,83 @@ class ReporteController extends Controller
             $viviendaSeleccionada = Vivienda::with('propietario')->findOrFail($id);
             $pagosAgua = CobroAgua::where('id_vivienda', $id)->orderBy('anio', 'desc')->orderBy('mes', 'desc')->get();
             $pagosMante = CobroMantenimiento::where('id_vivienda', $id)->orderBy('anio', 'desc')->orderBy('mes', 'desc')->get();
-            // CORREGIDO: Se quitó 'with(configuracion)' porque la tabla ya no existe
             $pagosRemesas = CobroRemesa::where('id_vivienda', $id)->orderBy('anio', 'desc')->orderBy('mes', 'desc')->get();
             $historialLecturas = Lectura::where('id_vivienda', $id)->orderBy('id_lectura', 'desc')->get();
         }
 
         return view('admin.reportes.vivienda', compact('viviendas', 'viviendaSeleccionada', 'pagosAgua', 'pagosMante', 'pagosRemesas', 'historialLecturas'));
     }
+
+    /**
+     * DESCARGAR REPORTE POR VIVIENDA (ESTE ES EL QUE FALTABA)
+     */
+    public function descargarPorVivienda($id)
+    {
+        $vivienda = Vivienda::with('propietario')->findOrFail($id);
+        
+        $pagosAgua = CobroAgua::where('id_vivienda', $id)->orderBy('anio', 'desc')->orderBy('mes', 'desc')->get();
+        $pagosMante = CobroMantenimiento::where('id_vivienda', $id)->orderBy('anio', 'desc')->orderBy('mes', 'desc')->get();
+        $pagosRemesas = CobroRemesa::where('id_vivienda', $id)->orderBy('anio', 'desc')->orderBy('mes', 'desc')->get();
+        $historialLecturas = Lectura::where('id_vivienda', $id)->orderBy('id_lectura', 'desc')->take(12)->get();
+
+        $pdf = Pdf::loadView('admin.reportes.vivienda_pdf', compact(
+            'vivienda', 'pagosAgua', 'pagosMante', 'pagosRemesas', 'historialLecturas'
+        ));
+
+        return $pdf->setPaper('letter', 'portrait')->download("Reporte_Casa_{$vivienda->nro_casa}.pdf");
+    }
+
+    /**
+     * Reporte de Morosidad (Vista Web)
+     */
+    public function morosidad()
+    {
+        // 1. Buscamos todas las viviendas que tengan deudas pendientes en cualquiera de los 3 servicios
+        $viviendasMorosas = Vivienda::with('propietario')
+            ->whereHas('cobrosAgua', function($query) { 
+                $query->where('estado_pago', 'Pendiente'); 
+            })
+            ->orWhereHas('cobrosMantenimiento', function($query) { 
+                $query->where('estado_pago', 'Pendiente'); 
+            })
+            ->orWhereHas('cobrosRemesas', function($query) { 
+                $query->where('estado_pago', 'Pendiente'); 
+            })
+            ->get();
+
+        // 2. Recorremos cada vivienda para calcular sus deudas por separado
+        foreach ($viviendasMorosas as $vivienda) {
+            
+            // Sumamos cuánto debe por consumo de Agua
+            $deudaAgua = CobroAgua::where('id_vivienda', $vivienda->id_vivienda)
+                ->where('estado_pago', 'Pendiente')
+                ->sum('total_pagar');
+
+            // Sumamos cuánto debe por cuota de Mantenimiento
+            $deudaMantenimiento = CobroMantenimiento::where('id_vivienda', $vivienda->id_vivienda)
+                ->where('estado_pago', 'Pendiente')
+                ->sum('monto_fijo');
+
+            // Sumamos cuánto debe por Remesas (Seguridad, Jardín, etc.)
+            $deudaRemesas = CobroRemesa::where('id_vivienda', $vivienda->id_vivienda)
+                ->where('estado_pago', 'Pendiente')
+                ->sum('total_remesa');
+
+            // Guardamos el total general sumando los tres servicios
+            $vivienda->total_deuda = $deudaAgua + $deudaMantenimiento + $deudaRemesas;
+
+            // Contamos cuántos recibos (papeles) debe en total el propietario
+            $cantidadAgua = CobroAgua::where('id_vivienda', $vivienda->id_vivienda)->where('estado_pago', 'Pendiente')->count();
+            $cantidadMante = CobroMantenimiento::where('id_vivienda', $vivienda->id_vivienda)->where('estado_pago', 'Pendiente')->count();
+            $cantidadRemesas = CobroRemesa::where('id_vivienda', $vivienda->id_vivienda)->where('estado_pago', 'Pendiente')->count();
+
+            $vivienda->cantidad_avisos = $cantidadAgua + $cantidadMante + $cantidadRemesas;
+        }
+
+        // 3. Enviamos la lista de morosos a la vista
+        return view('admin.reportes.morosidad', [
+            'morosos' => $viviendasMorosas
+        ]);
+    }
+
 }
