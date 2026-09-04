@@ -30,7 +30,6 @@
                         <img src="{{ asset('img/img1.jpeg') }}" class="d-block w-100 img-carousel-hero" alt="Imagen 1">
                         <div class="carousel-caption custom-caption">
                             <h4 class="fw-bold mb-0">SIDUMSS NORTE A</h4>
-                            <p class="mb-0 opacity-75">Sistema de Gestión Residencial</p>
                         </div>
                     </div>
                     <div class="carousel-item">
