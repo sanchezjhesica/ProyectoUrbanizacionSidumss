@@ -21,9 +21,6 @@ class PropietarioController extends Controller
         return view('propietario.dashboard', compact('viviendas'));
     }
 
-    /**
-     * Muestra la lista de recibos y pasa la configuración del QR
-     */
     public function misAvisos() {
         $id_usuario = Auth::id();
         $misViviendasIds = Vivienda::where('id_propietario', $id_usuario)->pluck('id_vivienda');
@@ -36,21 +33,19 @@ class PropietarioController extends Controller
         $avisosMantenimiento = CobroMantenimiento::whereIn('id_vivienda', $misViviendasIds)
             ->orderBy('anio', 'desc')->orderBy('mes', 'desc')->get();
             
-        // 3. Avisos de Remesas (Agrupados)
+        // 3. CORRECCIÓN: Avisos de Remesas (Ya no requiere SUM ni GROUP BY)
         $avisosRemesas = CobroRemesa::whereIn('id_vivienda', $misViviendasIds)
             ->select(
                 'id_vivienda', 
                 'mes', 
                 'anio', 
                 'estado_pago', 
-                DB::raw('SUM(monto_pactado) as total_mes'), 
-                DB::raw('MAX(id_cobro_remesa) as id_referencia') 
+                'total_remesa as total_mes', // Cambiado monto_pactado por total_remesa
+                'id_cobro_remesa as id_referencia' 
             )
-            ->groupBy('id_vivienda', 'mes', 'anio', 'estado_pago')
             ->orderBy('anio', 'desc')->orderBy('mes', 'desc')
             ->get();
 
-        // 4. NUEVO: Obtener la configuración de tarifas activa (donde está el QR)
         $config = DB::table('configuracion_tarifas')->where('estado', true)->first();
 
         return view('propietario.avisos', compact('avisosAgua', 'avisosMantenimiento', 'avisosRemesas', 'config'));
@@ -113,20 +108,13 @@ class PropietarioController extends Controller
     }
 
     public function descargarAvisoRemesas($id) {
-        $referencia = CobroRemesa::findOrFail($id);
-        $detallesRemesas = CobroRemesa::with(['configuracion', 'vivienda.propietario'])
-            ->where('id_vivienda', $referencia->id_vivienda)
-            ->where('mes', $referencia->mes)
-            ->where('anio', $referencia->anio)
-            ->get();
+        // CORRECCIÓN: Quitamos la relación 'configuracion' porque ya no existe esa tabla
+        $cobro = CobroRemesa::with(['vivienda.propietario'])->findOrFail($id);
 
-        $cobro = $detallesRemesas->first();
-        $pdf = Pdf::loadView('propietario.recibo_remesas', compact('detallesRemesas', 'cobro'));
+        $pdf = Pdf::loadView('propietario.recibo_remesas', compact('cobro'));
         $pdf->setPaper('letter', 'portrait');
         return $pdf->download("Aviso_Expensas_{$cobro->mes}_{$cobro->anio}.pdf");
     }
-
-    // --- FUNCIÓN PARA SUBIR COMPROBANTE ---
 
     public function subirComprobante(Request $request)
     {
@@ -136,10 +124,8 @@ class PropietarioController extends Controller
             'tipo_pago' => 'required'
         ]);
 
-        // Guardar imagen en storage/app/public/comprobantes
         $ruta = $request->file('comprobante')->store('comprobantes', 'public');
 
-        // Insertar en la tabla de comprobantes_pago
         DB::table('comprobantes_pago')->insert([
             'id_usuario' => Auth::id(),
             'id_referencia_pago' => $request->id_pago,
