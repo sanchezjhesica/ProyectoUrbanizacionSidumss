@@ -120,78 +120,86 @@ class ReporteController extends Controller
     /**
      * Reporte de Morosidad (Vista Web)
      */
-    public function morosidad()
-    {
-        // 1. Buscamos todas las viviendas que tengan deudas pendientes en cualquiera de los 3 servicios
-        $viviendasMorosas = Vivienda::with('propietario')
-            ->whereHas('cobrosAgua', function($query) { 
-                $query->where('estado_pago', 'Pendiente'); 
-            })
-            ->orWhereHas('cobrosMantenimiento', function($query) { 
-                $query->where('estado_pago', 'Pendiente'); 
-            })
-            ->orWhereHas('cobrosRemesas', function($query) { 
-                $query->where('estado_pago', 'Pendiente'); 
-            })
-            ->get();
+public function morosidad()
+{
+    // 1. Obtener todos los recibos pendientes de las 3 tablas
+    $pendientesAgua = CobroAgua::with('vivienda.propietario')->where('estado_pago', 'Pendiente')->get();
+    $pendientesMante = CobroMantenimiento::with('vivienda.propietario')->where('estado_pago', 'Pendiente')->get();
+    $pendientesRemesas = CobroRemesa::with('vivienda.propietario')->where('estado_pago', 'Pendiente')->get();
 
-        // 2. Recorremos cada vivienda para calcular sus deudas por separado
-        foreach ($viviendasMorosas as $vivienda) {
-            
-            // Sumamos cuánto debe por consumo de Agua
-            $deudaAgua = CobroAgua::where('id_vivienda', $vivienda->id_vivienda)
-                ->where('estado_pago', 'Pendiente')
-                ->sum('total_pagar');
+    // 2. Unificar todo en una sola colección
+    $todoPendiente = collect();
 
-            // Sumamos cuánto debe por cuota de Mantenimiento
-            $deudaMantenimiento = CobroMantenimiento::where('id_vivienda', $vivienda->id_vivienda)
-                ->where('estado_pago', 'Pendiente')
-                ->sum('monto_fijo');
-
-            // Sumamos cuánto debe por Remesas (Seguridad, Jardín, etc.)
-            $deudaRemesas = CobroRemesa::where('id_vivienda', $vivienda->id_vivienda)
-                ->where('estado_pago', 'Pendiente')
-                ->sum('total_remesa');
-
-            // Guardamos el total general sumando los tres servicios
-            $vivienda->total_deuda = $deudaAgua + $deudaMantenimiento + $deudaRemesas;
-
-            // Contamos cuántos recibos (papeles) debe en total el propietario
-            $cantidadAgua = CobroAgua::where('id_vivienda', $vivienda->id_vivienda)->where('estado_pago', 'Pendiente')->count();
-            $cantidadMante = CobroMantenimiento::where('id_vivienda', $vivienda->id_vivienda)->where('estado_pago', 'Pendiente')->count();
-            $cantidadRemesas = CobroRemesa::where('id_vivienda', $vivienda->id_vivienda)->where('estado_pago', 'Pendiente')->count();
-
-            $vivienda->cantidad_avisos = $cantidadAgua + $cantidadMante + $cantidadRemesas;
-        }
-
-        // 3. Enviamos la lista de morosos a la vista
-        return view('admin.reportes.morosidad', [
-            'morosos' => $viviendasMorosas
+    foreach($pendientesAgua as $a) {
+        $todoPendiente->push((object)[
+            'mes' => $a->mes, 'anio' => $a->anio, 'monto' => $a->total_pagar,
+            'casa' => $a->vivienda->nro_casa, 'propietario' => $a->vivienda->propietario->nombre ?? 'S/N',
+            'concepto' => 'Agua Potable'
         ]);
     }
-public function descargarMorosidad()
-{
-    // 1. Obtener los mismos datos que la vista web
-    $viviendasMorosas = Vivienda::with('propietario')
-        ->whereHas('cobrosAgua', function($q) { $q->where('estado_pago', 'Pendiente'); })
-        ->orWhereHas('cobrosMantenimiento', function($q) { $q->where('estado_pago', 'Pendiente'); })
-        ->orWhereHas('cobrosRemesas', function($q) { $q->where('estado_pago', 'Pendiente'); })
-        ->get();
-
-    foreach ($viviendasMorosas as $vivienda) {
-        $deudaAgua = CobroAgua::where('id_vivienda', $vivienda->id_vivienda)->where('estado_pago', 'Pendiente')->sum('total_pagar');
-        $deudaMante = CobroMantenimiento::where('id_vivienda', $vivienda->id_vivienda)->where('estado_pago', 'Pendiente')->sum('monto_fijo');
-        $deudaRemesas = CobroRemesa::where('id_vivienda', $vivienda->id_vivienda)->where('estado_pago', 'Pendiente')->sum('total_remesa');
-        
-        $vivienda->total_deuda = $deudaAgua + $deudaMante + $deudaRemesas;
-        $vivienda->cantidad_avisos = CobroAgua::where('id_vivienda', $vivienda->id_vivienda)->where('estado_pago', 'Pendiente')->count() +
-                                     CobroMantenimiento::where('id_vivienda', $vivienda->id_vivienda)->where('estado_pago', 'Pendiente')->count() +
-                                     CobroRemesa::where('id_vivienda', $vivienda->id_vivienda)->where('estado_pago', 'Pendiente')->count();
+    foreach($pendientesMante as $m) {
+        $todoPendiente->push((object)[
+            'mes' => $m->mes, 'anio' => $m->anio, 'monto' => $m->monto_fijo,
+            'casa' => $m->vivienda->nro_casa, 'propietario' => $m->vivienda->propietario->nombre ?? 'S/N',
+            'concepto' => 'Mantenimiento'
+        ]);
+    }
+    foreach($pendientesRemesas as $r) {
+        $todoPendiente->push((object)[
+            'mes' => $r->mes, 'anio' => $r->anio, 'monto' => $r->total_remesa,
+            'casa' => $r->vivienda->nro_casa, 'propietario' => $r->vivienda->propietario->nombre ?? 'S/N',
+            'concepto' => 'Expensas/Remesas'
+        ]);
     }
 
-    // 2. Cargar vista para PDF
-    $pdf = Pdf::loadView('admin.reportes.morosidad_pdf', compact('viviendasMorosas'));
+    // 3. AGRUPAR POR AÑO Y LUEGO POR MES
+    $morosidadPorMes = $todoPendiente->groupBy([
+        'anio',
+        function ($item) { return $item->mes; }
+    ]);
 
-    return $pdf->setPaper('letter', 'portrait')->download('Reporte_Morosidad_SIDUMSS.pdf');
+    $totalDeudaGlobal = $todoPendiente->sum('monto');
+
+    return view('admin.reportes.morosidad', compact('morosidadPorMes', 'totalDeudaGlobal'));
+}
+public function descargarMorosidad()
+{
+    // 1. Recolectar todos los pendientes
+    $pendientesAgua = CobroAgua::with('vivienda.propietario')->where('estado_pago', 'Pendiente')->get();
+    $pendientesMante = CobroMantenimiento::with('vivienda.propietario')->where('estado_pago', 'Pendiente')->get();
+    $pendientesRemesas = CobroRemesa::with('vivienda.propietario')->where('estado_pago', 'Pendiente')->get();
+
+    $todoPendiente = collect();
+
+    foreach($pendientesAgua as $a) {
+        $todoPendiente->push((object)[
+            'mes' => $a->mes, 'anio' => $a->anio, 'monto' => $a->total_pagar,
+            'casa' => $a->vivienda->nro_casa, 'propietario' => $a->vivienda->propietario->nombre ?? 'S/N',
+            'concepto' => 'Agua Potable'
+        ]);
+    }
+    foreach($pendientesMante as $m) {
+        $todoPendiente->push((object)[
+            'mes' => $m->mes, 'anio' => $m->anio, 'monto' => $m->monto_fijo,
+            'casa' => $m->vivienda->nro_casa, 'propietario' => $m->vivienda->propietario->nombre ?? 'S/N',
+            'concepto' => 'Mantenimiento'
+        ]);
+    }
+    foreach($pendientesRemesas as $r) {
+        $todoPendiente->push((object)[
+            'mes' => $r->mes, 'anio' => $r->anio, 'monto' => $r->total_remesa,
+            'casa' => $r->vivienda->nro_casa, 'propietario' => $r->vivienda->propietario->nombre ?? 'S/N',
+            'concepto' => 'Expensas/Remesas'
+        ]);
+    }
+
+    // 2. Agrupar para el PDF
+    $morosidadPorMes = $todoPendiente->groupBy(['anio', 'mes']);
+    $totalDeudaGlobal = $todoPendiente->sum('monto');
+
+    // 3. Generar PDF
+    $pdf = Pdf::loadView('admin.reportes.morosidad_pdf', compact('morosidadPorMes', 'totalDeudaGlobal'));
+
+    return $pdf->setPaper('letter', 'portrait')->download('Reporte_Morosidad_Cronologico.pdf');
 }
 }
