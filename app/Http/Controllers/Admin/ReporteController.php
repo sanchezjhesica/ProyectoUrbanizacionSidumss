@@ -169,5 +169,29 @@ class ReporteController extends Controller
             'morosos' => $viviendasMorosas
         ]);
     }
+public function descargarMorosidad()
+{
+    // 1. Obtener los mismos datos que la vista web
+    $viviendasMorosas = Vivienda::with('propietario')
+        ->whereHas('cobrosAgua', function($q) { $q->where('estado_pago', 'Pendiente'); })
+        ->orWhereHas('cobrosMantenimiento', function($q) { $q->where('estado_pago', 'Pendiente'); })
+        ->orWhereHas('cobrosRemesas', function($q) { $q->where('estado_pago', 'Pendiente'); })
+        ->get();
 
+    foreach ($viviendasMorosas as $vivienda) {
+        $deudaAgua = CobroAgua::where('id_vivienda', $vivienda->id_vivienda)->where('estado_pago', 'Pendiente')->sum('total_pagar');
+        $deudaMante = CobroMantenimiento::where('id_vivienda', $vivienda->id_vivienda)->where('estado_pago', 'Pendiente')->sum('monto_fijo');
+        $deudaRemesas = CobroRemesa::where('id_vivienda', $vivienda->id_vivienda)->where('estado_pago', 'Pendiente')->sum('total_remesa');
+        
+        $vivienda->total_deuda = $deudaAgua + $deudaMante + $deudaRemesas;
+        $vivienda->cantidad_avisos = CobroAgua::where('id_vivienda', $vivienda->id_vivienda)->where('estado_pago', 'Pendiente')->count() +
+                                     CobroMantenimiento::where('id_vivienda', $vivienda->id_vivienda)->where('estado_pago', 'Pendiente')->count() +
+                                     CobroRemesa::where('id_vivienda', $vivienda->id_vivienda)->where('estado_pago', 'Pendiente')->count();
+    }
+
+    // 2. Cargar vista para PDF
+    $pdf = Pdf::loadView('admin.reportes.morosidad_pdf', compact('viviendasMorosas'));
+
+    return $pdf->setPaper('letter', 'portrait')->download('Reporte_Morosidad_SIDUMSS.pdf');
+}
 }
