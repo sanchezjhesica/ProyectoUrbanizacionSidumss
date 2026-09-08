@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
 
 class PropietarioController extends Controller
 {
@@ -136,5 +137,32 @@ class PropietarioController extends Controller
         ]);
 
         return back()->with('success', '¡Comprobante enviado con éxito! Espere la validación del administrador.');
+    }
+    public function editPassword() {
+    return view('propietario.seguridad');
+    }
+
+    public function updatePassword(Request $request) {
+        // 1. Validar datos
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|min:6|confirmed', // confirmed busca el campo new_password_confirmation
+        ], [
+            'new_password.confirmed' => 'La confirmación de la nueva contraseña no coincide.',
+            'new_password.min' => 'La nueva contraseña debe tener al menos 6 caracteres.'
+        ]);
+
+        $user = Auth::user();
+
+        // 2. Verificar si la contraseña actual es correcta
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors(['current_password' => 'La contraseña actual no es correcta.']);
+        }
+
+        // 3. Actualizar
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+
+        return back()->with('success', '¡Contraseña actualizada correctamente!');
     }
 }

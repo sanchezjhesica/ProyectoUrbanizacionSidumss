@@ -112,5 +112,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/descargar/agua/{id}', [PropietarioController::class, 'descargarAvisoAgua'])->name('propietario.descargar.agua');
         Route::get('/descargar/mantenimiento/{id}', [PropietarioController::class, 'descargarAvisoMantenimiento'])->name('propietario.descargar.mantenimiento');
         Route::get('/descargar/remesas/{id}', [PropietarioController::class, 'descargarAvisoRemesas'])->name('propietario.descargar.remesas');
+            // Rutas para cambio de contraseña
+        Route::get('/perfil/seguridad', [PropietarioController::class, 'editPassword'])->name('propietario.password.edit');
+        Route::post('/perfil/seguridad', [PropietarioController::class, 'updatePassword'])->name('propietario.password.update');
+
     });
 });

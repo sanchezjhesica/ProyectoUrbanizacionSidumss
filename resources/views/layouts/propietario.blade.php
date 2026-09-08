@@ -209,6 +209,11 @@
                         <i class="fas fa-calendar-alt"></i> Reservas
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('propietario.password.edit') }}" class="nav-link {{ request()->routeIs('propietario.password.edit') ? 'active' : '' }}">
+                        <i class="fas fa-user-shield"></i> Seguridad
+                    </a>
+                </li>
             </ul>
         </div>
 
