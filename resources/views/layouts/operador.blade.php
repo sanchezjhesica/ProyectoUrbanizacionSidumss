@@ -156,7 +156,7 @@
 
     <!-- BARRA FLOTANTE MÓVIL -->
     <div id="mobile-top-bar">
-        <h2 class="fw-bold">SIDUMSS</h2>
+        <h2 class="fw-bold">SIDUMSS NORTE A</h2>
         <button class="btn border-0" id="sidebarCollapse">
             <i class="fas fa-bars fs-4 text-stellar-blue" style="color: var(--stellar-blue);"></i>
         </button>
@@ -165,8 +165,8 @@
     <!-- SIDEBAR OPERADOR -->
     <nav id="sidebar">
         <div class="sidebar-header d-none d-lg-block">
-            <h1>SIDUMSS</h1>
-            <p class="small text-muted text-uppercase tracking-wider">Módulo Operador</p>
+            <h1>SIDUMSS NORTE A</h1>
+            <p class="small text-muted text-uppercase tracking-wider">Panel de trabajo del Operador</p>
         </div>
 
         <div class="user-panel">
