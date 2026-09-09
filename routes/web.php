@@ -75,6 +75,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/tarifas/global', [TarifaController::class, 'updateGlobal'])->name('admin.tarifas.updateGlobal');
         Route::put('/tarifas/remesa/{id}', [TarifaController::class, 'updateRemesa'])->name('admin.tarifas.updateRemesa');
         Route::put('/tarifas/area/{id}', [TarifaController::class, 'updateArea'])->name('admin.tarifas.updateArea');
+        //validacion del coreo electronico
+        Route::post('/usuarios/enviar-codigo', [UsuarioController::class, 'enviarCodigoVerificacion'])->name('admin.usuarios.enviar_codigo');
     });
 
     // =========================================================
