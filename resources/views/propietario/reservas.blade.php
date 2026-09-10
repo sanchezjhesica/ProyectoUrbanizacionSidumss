@@ -80,7 +80,6 @@
                                     <th class="py-3 uppercase-tracking">Espacio</th>
                                     <th class="py-3 text-center uppercase-tracking" style="width: 85px;">Costo</th>
                                     <th class="py-3 text-center uppercase-tracking" style="width: 105px;">Solicitud</th>
-                                    <th class="pe-3 py-3 text-center uppercase-tracking" style="width: 95px;">Pago</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -121,13 +120,6 @@
                                                 <i class="fas fa-clock me-1"></i> Pendiente
                                             </span>
                                         @endif
-                                    </td>
-
-                                    <!-- Estado Pago -->
-                                    <td class="pe-3 text-center text-nowrap">
-                                        <span class="badge-stellar {{ $r->estado_pago == 'Pagado' ? 'bg-success-soft text-success' : 'bg-light text-muted border' }}">
-                                            {{ $r->estado_pago }}
-                                        </span>
                                     </td>
                                 </tr>
                                 @empty
