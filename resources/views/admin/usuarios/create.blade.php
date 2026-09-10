@@ -4,8 +4,8 @@
 <div class="usuarios-create-stellar">
     <!-- 1. CABECERA -->
     <div class="mb-4 mb-md-5 border-bottom pb-4">
-        <h2 class="text-stellar-blue mb-0 fw-bold"><i class="fas fa-user-plus me-2"></i> Registrar Propietario</h2>
-        <p class="text-muted mb-0">Cree una nueva cuenta de acceso y valide el correo electrónico del residente.</p>
+        <h2 class="text-stellar-blue mb-0 fw-bold"><i class="fas fa-user-plus me-2"></i> Registrar Usuario</h2>
+        <p class="text-muted mb-0">Cree una nueva cuenta de acceso, designe su rol y valide el correo electrónico.</p>
     </div>
 
     <!-- 2. ALERTA DE ERRORES -->
@@ -47,10 +47,10 @@
                     </div>
                 </div>
 
-                <!-- Sección: Documentación y Vivienda (NUEVO CAMPO: FECHA DE INGRESO) -->
+                <!-- Sección: Documentación y Rol del Usuario -->
                 <div class="form-section mb-5">
                     <h5 class="text-stellar-blue fw-bold mb-4 border-bottom pb-2">
-                        <i class="fas fa-address-book me-2"></i>Documentación y Residencia
+                        <i class="fas fa-address-book me-2"></i>Documentación y Rol de Usuario
                     </h5>
                     <div class="row g-3 g-md-4">
                         <div class="col-md-4">
@@ -65,6 +65,29 @@
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0"><i class="fas fa-mobile-alt text-muted"></i></span>
                                 <input type="text" name="telefono" class="form-control form-stellar border-start-0" value="{{ old('telefono') }}" placeholder="Ej. 70000000">
+                            </div>
+                        </div>
+
+                        <!-- NUEVO CAMPO: SELECCIÓN DE ROL -->
+                        <div class="col-md-4">
+                            <label class="form-label-stellar">Rol de Usuario</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-user-tag text-muted"></i></span>
+                                <select name="id_rol" class="form-select form-stellar border-start-0" required>
+                                    <option value="" disabled {{ old('id_rol') ? '' : 'selected' }}>Seleccione un rol...</option>
+                                    @if(isset($roles) && count($roles) > 0)
+                                        @foreach($roles as $rol)
+                                            <option value="{{ $rol->id_rol }}" {{ old('id_rol') == $rol->id_rol ? 'selected' : '' }}>
+                                                {{ $rol->nombre_rol }}
+                                            </option>
+                                        @endforeach
+                                    @else
+                                        {{-- Opciones por defecto según tu tabla roles --}}
+                                        <option value="1" {{ old('id_rol') == 1 ? 'selected' : '' }}>Administrador</option>
+                                        <option value="2" {{ old('id_rol') == 2 ? 'selected' : '' }}>Operador</option>
+                                        <option value="3" {{ old('id_rol') == 3 ? 'selected' : '' }}>Propietario</option>
+                                    @endif
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -85,7 +108,6 @@
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <!-- Botón para disparar el envío del código -->
                             <button type="button" id="btn-enviar-codigo" class="btn btn-outline-primary w-100 py-2 fw-bold rounded-pill">
                                 <i class="fas fa-paper-plane me-2"></i> Enviar Código
                             </button>
@@ -119,7 +141,7 @@
                         <i class="fas fa-arrow-left me-2"></i> Cancelar
                     </a>
                     <button type="submit" id="btn-guardar" class="btn btn-stellar-blue btn-lg px-5 shadow-sm order-1 order-md-2">
-                        <i class="fas fa-save me-2"></i> Guardar Propietario
+                        <i class="fas fa-save me-2"></i> Guardar Usuario
                     </button>
                 </div>
             </form>
@@ -158,7 +180,7 @@
     }
 </style>
 
-<!-- SCRIPT DE SIMULACIÓN DE ENVÍO DE CÓDIGO -->
+<!-- SCRIPT DE ENVÍO DE CÓDIGO -->
 <script>
     document.getElementById('btn-enviar-codigo').addEventListener('click', function() {
         let emailField = document.getElementById('input-email');
@@ -174,7 +196,6 @@
         btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Enviando...';
         btn.disabled = true;
 
-        // Petición real al servidor (Backend de Laravel)
         fetch("{{ route('admin.usuarios.enviar_codigo') }}", {
             method: 'POST',
             headers: {

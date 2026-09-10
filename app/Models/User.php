@@ -16,15 +16,15 @@ class User extends Authenticatable
     public $timestamps = false;
 
     protected $fillable = [
-        'nombre',
-        'apellido_paterno',
-        'apellido_materno',
-        'ci',
-        'telefono',
-        'email',
-        'password',
-        'id_rol',
-        'estado_logico',
+    'id_rol',
+    'nombre',
+    'apellido_paterno',
+    'apellido_materno',
+    'ci',
+    'telefono',
+    'email',
+    'password',
+    'estado_logico',
     ];
 
     protected $hidden = [

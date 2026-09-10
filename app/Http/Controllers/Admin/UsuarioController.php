@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;   // <-- IMPORTANTE para consultar la tabla roles
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
@@ -17,14 +18,20 @@ class UsuarioController extends Controller
         return view('admin.usuarios.index', compact('usuarios'));
     }
 
-    public function create() {
-        return view('admin.usuarios.create');
+    public function create() 
+    {
+        // 1. Obtenemos todos los roles de la base de datos para enviarlos al select
+        $roles = DB::table('roles')->get();
+        return view('admin.usuarios.create', compact('roles'));
     }
 
     public function store(Request $request)
     {
         // 1. Validaciones avanzadas y estrictas
         $request->validate([
+            // REGLA PARA EL ROL: Debe ser obligatorio y existir en la tabla 'roles'
+            'id_rol' => ['required', 'integer', 'exists:roles,id_rol'],
+
             'nombre' => ['required', 'string', 'max:100', 'regex:/^(?!\s*$).+$/', 'not_in:null,NULL,Null,N/A,n/a', 'regex:/^[\pL\s\-]+$/u'],
             'apellido_paterno' => ['nullable', 'string', 'max:100', 'not_in:null,NULL,Null,N/A,n/a', 'regex:/^[\pL\s\-]+$/u'],
             'apellido_materno' => ['nullable', 'string', 'max:100', 'not_in:null,NULL,Null,N/A,n/a', 'regex:/^[\pL\s\-]+$/u'],
@@ -33,11 +40,6 @@ class UsuarioController extends Controller
             'telefono' => ['nullable', 'numeric', 'digits_between:7,12', 'regex:/^[67]\d{7}$/'],
             'email' => ['required', 'email:rfc,dns', 'max:100', 'unique:usuarios,email'],
             
-            // NUEVA REGLA ESTRICTA DE CONTRASEÑA:
-            // (?=.*[a-z]) -> al menos una minúscula
-            // (?=.*[A-Z]) -> al menos una mayúscula
-            // (?=.*\d)     -> al menos un número
-            // (?=.*[@$!%*?&#.\-_]) -> al menos un carácter especial
             'password' => [
                 'required', 
                 'string', 
@@ -49,6 +51,9 @@ class UsuarioController extends Controller
             'codigo_verificacion' => 'required|string|size:6'
         ], [
             // MENSAJES PERSONALIZADOS
+            'id_rol.required' => 'Debe seleccionar un rol para el usuario.',
+            'id_rol.exists' => 'El rol seleccionado no es válido en el sistema.',
+
             'nombre.required' => 'El nombre es obligatorio.',
             'nombre.regex' => 'El nombre solo debe contener letras y no puede estar vacío.',
             'nombre.not_in' => 'El nombre no puede ser una palabra inválida como null o N/A.',
@@ -61,12 +66,12 @@ class UsuarioController extends Controller
 
             'ci.required' => 'La cédula de identidad es obligatoria.',
             'ci.numeric' => 'La cédula de identidad debe contener solo números.',
-            'ci.digits_between' => 'La cédula de identidad debe tener entre 7 y 8 dígitos.',
+            'ci.digits_between' => 'La cédula de identidad debe tener entre 5 y 15 dígitos.',
             'ci.unique' => 'Este número de CI ya está registrado en el sistema.',
             'ci.regex' => 'El CI no debe contener espacios en blanco.',
 
             'telefono.numeric' => 'El teléfono debe contener solo números.',
-            'telefono.digits_between' => 'El teléfono debe tener entre 7 y 8 digitos.',
+            'telefono.digits_between' => 'El teléfono debe tener entre 7 y 12 dígitos.',
             'telefono.regex' => 'Número de celular no válido (debe empezar con 6 o 7).',
 
             'email.required' => 'El correo electrónico es obligatorio.',
@@ -74,7 +79,6 @@ class UsuarioController extends Controller
             'email.dns' => 'El dominio del correo (ej. @gmail.com) no existe o no es real.',
             'email.unique' => 'Este correo electrónico ya está registrado por otro usuario.',
 
-            // MENSAJES DE ERROR DE CONTRASEÑA DETALLADOS
             'password.required' => 'La contraseña es obligatoria.',
             'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
             'password.confirmed' => 'La confirmación de la contraseña no coincide.',
@@ -92,8 +96,9 @@ class UsuarioController extends Controller
             ]);
         }
 
-        // 3. Crear el usuario si pasó todas las validaciones
+        // 3. Crear el usuario con el ROL seleccionado dinámicamente
         User::create([
+            'id_rol' => $request->id_rol, // <-- Asignación dinámica del rol
             'nombre' => trim($request->nombre),
             'apellido_paterno' => trim($request->apellido_paterno),
             'apellido_materno' => trim($request->apellido_materno),
@@ -101,7 +106,6 @@ class UsuarioController extends Controller
             'telefono' => trim($request->telefono),
             'email' => trim($request->email),
             'password' => Hash::make($request->password),
-            'id_rol' => 3,
             'estado_logico' => true
         ]);
 
@@ -109,18 +113,19 @@ class UsuarioController extends Controller
         Session::forget([$sessionKey, 'email_a_verificar']);
 
         return redirect()->route('admin.usuarios.index')
-            ->with('success', '¡Propietario registrado y correo verificado con éxito!');
+            ->with('success', '¡Usuario registrado y correo verificado con éxito!');
     }
 
     public function edit($id) {
         $usuario = User::findOrFail($id);
-        return view('admin.usuarios.edit', compact('usuario'));
+        $roles = DB::table('roles')->get(); // Enviamos roles por si se edita el rol
+        return view('admin.usuarios.edit', compact('usuario', 'roles'));
     }
 
     public function update(Request $request, $id) {
         $usuario = User::findOrFail($id);
         $usuario->update($request->all());
-        return redirect()->route('admin.usuarios.index')->with('success', 'Usuario actualizado.');
+        return redirect()->route('admin.usuarios.index')->with('success', 'Usuario actualizado con éxito.');
     }
 
     public function destroy($id)
@@ -129,7 +134,7 @@ class UsuarioController extends Controller
         $usuario->estado_logico = false; 
         $usuario->save();
 
-        return redirect()->route('admin.usuarios.index')->with('success', 'Usuario Eliminado correctamente.');
+        return redirect()->route('admin.usuarios.index')->with('success', 'Usuario eliminado correctamente.');
     }
 
     public function resetPassword($id)
