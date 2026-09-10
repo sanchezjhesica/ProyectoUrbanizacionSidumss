@@ -29,19 +29,34 @@ class PropietarioController extends Controller
         // 1. Avisos de Agua
         $avisosAgua = CobroAgua::whereIn('id_vivienda', $misViviendasIds)
             ->orderBy('anio', 'desc')->orderBy('mes', 'desc')->get();
+
+        // =========================================================================
+        // NUEVO: Sumar las reservas ACEPTADAS de cada mes al total de Agua
+        // =========================================================================
+        foreach ($avisosAgua as $aviso) {
+            $montoReservas = DB::table('reservas')
+                ->where('id_usuario', $id_usuario)
+                ->whereMonth('fecha_reserva', $aviso->mes)
+                ->whereYear('fecha_reserva', $aviso->anio)
+                ->where('estado_reserva', 'Aceptado') // Solo las aceptadas por el admin
+                ->sum('costo_pactado');
+
+            // Atributo temporal 'total_real' que suma: Agua + Alcantarillado + Mora + Reservas
+            $aviso->total_real = $aviso->total_pagar + $montoReservas;
+        }
             
         // 2. Avisos de Mantenimiento
         $avisosMantenimiento = CobroMantenimiento::whereIn('id_vivienda', $misViviendasIds)
             ->orderBy('anio', 'desc')->orderBy('mes', 'desc')->get();
             
-        // 3. CORRECCIÓN: Avisos de Remesas (Ya no requiere SUM ni GROUP BY)
+        // 3. Avisos de Remesas (Expensas)
         $avisosRemesas = CobroRemesa::whereIn('id_vivienda', $misViviendasIds)
             ->select(
                 'id_vivienda', 
                 'mes', 
                 'anio', 
                 'estado_pago', 
-                'total_remesa as total_mes', // Cambiado monto_pactado por total_remesa
+                'total_remesa as total_mes',
                 'id_cobro_remesa as id_referencia' 
             )
             ->orderBy('anio', 'desc')->orderBy('mes', 'desc')
@@ -74,26 +89,31 @@ class PropietarioController extends Controller
         $id_usuario = Auth::id();
         $area = DB::table('areas_recreativas')->where('id_area', $request->id_area)->first();
 
+        // Se registra la reserva con 'estado_reserva' = 'Pendiente' para aprobación del admin
         DB::table('reservas')->insert([
-            'id_usuario' => $id_usuario,
-            'id_area' => $request->id_area,
-            'fecha_reserva' => $request->fecha,
-            'costo_pactado' => $area->costo_reserva,
-            'estado_pago' => 'Pendiente'
+            'id_usuario'     => $id_usuario,
+            'id_area'        => $request->id_area,
+            'fecha_reserva'  => $request->fecha,
+            'costo_pactado'  => $area->costo_reserva,
+            'estado_pago'    => 'Pendiente',
+            'estado_reserva' => 'Pendiente' // <-- CAMBIO CLAVE
         ]);
 
-        return redirect()->back()->with('success', 'Reserva realizada con éxito.');
+        return redirect()->back()->with('success', 'Solicitud de reserva enviada con éxito. Pendiente de aprobación por la administración.');
     }
 
     // --- MÉTODOS PARA DESCARGAR PDF ---
 
     public function descargarAvisoAgua($id) {
         $cobro = CobroAgua::with(['vivienda.propietario', 'lectura'])->findOrFail($id);
+        
+        // CORRECCIÓN CLAVE: Solo sumar reservas que fueron ACEPTADAS por el admin
         $montoReservas = DB::table('reservas')
             ->where('id_usuario', $cobro->vivienda->id_propietario)
             ->whereMonth('fecha_reserva', $cobro->mes)
             ->whereYear('fecha_reserva', $cobro->anio)
             ->where('estado_pago', 'Pendiente')
+            ->where('estado_reserva', 'Aceptado') // <-- CAMBIO CLAVE (No cobra denegadas ni pendientes)
             ->sum('costo_pactado');
 
         $pdf = Pdf::loadView('propietario.recibo_agua', compact('cobro', 'montoReservas'));
@@ -109,7 +129,6 @@ class PropietarioController extends Controller
     }
 
     public function descargarAvisoRemesas($id) {
-        // CORRECCIÓN: Quitamos la relación 'configuracion' porque ya no existe esa tabla
         $cobro = CobroRemesa::with(['vivienda.propietario'])->findOrFail($id);
 
         $pdf = Pdf::loadView('propietario.recibo_remesas', compact('cobro'));
@@ -138,15 +157,15 @@ class PropietarioController extends Controller
 
         return back()->with('success', '¡Comprobante enviado con éxito! Espere la validación del administrador.');
     }
+
     public function editPassword() {
-    return view('propietario.seguridad');
+        return view('propietario.seguridad');
     }
 
     public function updatePassword(Request $request) {
-        // 1. Validar datos
         $request->validate([
             'current_password' => 'required',
-            'new_password' => 'required|min:6|confirmed', // confirmed busca el campo new_password_confirmation
+            'new_password' => 'required|min:6|confirmed',
         ], [
             'new_password.confirmed' => 'La confirmación de la nueva contraseña no coincide.',
             'new_password.min' => 'La nueva contraseña debe tener al menos 6 caracteres.'
@@ -154,12 +173,10 @@ class PropietarioController extends Controller
 
         $user = Auth::user();
 
-        // 2. Verificar si la contraseña actual es correcta
         if (!Hash::check($request->current_password, $user->password)) {
             return back()->withErrors(['current_password' => 'La contraseña actual no es correcta.']);
         }
 
-        // 3. Actualizar
         $user->password = Hash::make($request->new_password);
         $user->save();
 

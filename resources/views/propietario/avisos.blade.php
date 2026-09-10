@@ -61,8 +61,12 @@
                                 <td class="ps-4">
                                     <div class="fw-bold text-dark text-capitalize">{{ \Carbon\Carbon::create()->month($a->mes)->translatedFormat('F') }} {{ $a->anio }}</div>
                                 </td>
-                                <td><span class="fw-bold text-stellar-blue fs-6">Bs. {{ number_format($a->total_pagar, 2) }}</span></td>
+                                <td>
+                                    <!-- TOTAL CON RESERVAS -->
+                                    <span class="fw-bold text-stellar-blue fs-6">Bs. {{ number_format($a->total_real ?? $a->total_pagar, 2) }}</span>
+                                </td>
                                 <td class="text-center">
+                                    <!-- ESTADO -->
                                     <span class="badge-stellar {{ $a->estado_pago == 'Pagado' ? 'bg-success-soft text-success' : 'bg-danger-soft text-danger' }}">
                                         {{ $a->estado_pago }}
                                     </span>
@@ -177,7 +181,7 @@
     </div>
 </div>
 
-<!-- MODAL QR (SCROLLABLE Y GLASS STYLE) -->
+<!-- MODAL QR -->
 <div class="modal fade" id="modalQR" tabindex="-1" aria-labelledby="modalQRLabel" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 rounded-4 shadow-lg">
@@ -221,13 +225,11 @@
 </div>
 
 <style>
-    /* VARIABLES Y CORE */
     :root { 
         --stellar-blue: #0e5cad; 
         --stellar-button: linear-gradient(45deg, #22349e 0%, #8183e6 100%); 
     }
 
-    /* Fondo de Cristal para la tarjeta */
     .card-glass {
         background: rgba(255, 255, 255, 0.8) !important;
         backdrop-filter: blur(12px);
@@ -242,7 +244,6 @@
     
     .uppercase-tracking { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 700; color: #888; }
 
-    /* Pestañas (Pills) */
     .btn-stellar-tab {
         background-color: rgba(255, 255, 255, 0.6);
         border: 1px solid rgba(255, 255, 255, 0.4);
@@ -258,7 +259,6 @@
         box-shadow: 0 4px 12px rgba(14, 92, 173, 0.2);
     }
 
-    /* Badges */
     .badge-stellar {
         display: inline-block;
         padding: 5px 12px;
@@ -268,7 +268,6 @@
         text-transform: uppercase;
     }
 
-    /* Botones de Acción */
     .btn-view-stellar {
         background-color: white;
         border: 1px solid var(--stellar-blue);
@@ -294,7 +293,6 @@
     }
     .btn-qr-stellar:hover { background-color: #d35400; transform: translateY(-2px); }
 
-    /* Estilo del Formulario en Modal */
     .form-label-stellar { font-size: 0.7rem; text-transform: uppercase; font-weight: 800; color: #777; margin-bottom: 5px; display: block; }
     .form-stellar { border-radius: 10px; border: 1px solid #ddd; padding: 12px; background: #fdfdfd; font-size: 0.9rem; }
     .btn-stellar-submit { background: var(--stellar-button); color: white !important; border: none; border-radius: 50px; font-weight: 700; transition: 0.3s; }
@@ -303,7 +301,6 @@
     .tabs-container-scroll { overflow-x: auto; padding-bottom: 5px; }
     .rounded-4 { border-radius: 1.25rem !important; }
 
-    /* Alertas */
     .alert-stellar-success { background: white; border-left: 5px solid #28a745; color: #155724; border-radius: 12px; }
 </style>
 
@@ -311,7 +308,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         var modalQR = document.getElementById('modalQR');
         if(modalQR) {
-            document.body.appendChild(modalQR); // Solución para el Z-index
+            document.body.appendChild(modalQR);
             modalQR.addEventListener('show.bs.modal', function (event) {
                 var button = event.relatedTarget;
                 document.getElementById('input_id_pago').value = button.getAttribute('data-id');
