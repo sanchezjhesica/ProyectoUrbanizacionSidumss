@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\LecturaController;
 use App\Http\Controllers\Admin\ReporteController;
 use App\Http\Controllers\Admin\EgresoController;
 use App\Http\Controllers\Admin\TarifaController;
+use App\Http\Controllers\Admin\ReservaAdminController;
 use App\Http\Controllers\Operador\OperadorController;
 use App\Http\Controllers\Propietario\PropietarioController;
 
@@ -18,9 +19,6 @@ Route::post('/login', [LoginController::class, 'login'])->name('login.post');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::middleware(['auth'])->group(function () {
-
-    // Ruta compartida para ver recibos detallados (Dashboard)
-    Route::get('/recibo/detalle/{id_cobro}', [LecturaController::class, 'showRecibo'])->name('compartido.recibo');
 
     // =========================================================
     // --- GRUPO ADMINISTRADOR (id_rol = 1) ---
@@ -77,8 +75,11 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/tarifas/area/{id}', [TarifaController::class, 'updateArea'])->name('admin.tarifas.updateArea');
         //validacion del coreo electronico
         Route::post('/usuarios/enviar-codigo', [UsuarioController::class, 'enviarCodigoVerificacion'])->name('admin.usuarios.enviar_codigo');
+   // Rutas para Gestión de Reservas (AGREGAR 'admin.' EN EL NOMBRE)
+        Route::get('/reservas', [ReservaAdminController::class, 'index'])->name('admin.reservas.index');
+        Route::patch('/reservas/{id}/aceptar', [ReservaAdminController::class, 'aceptar'])->name('admin.reservas.aceptar');
+        Route::patch('/reservas/{id}/denegar', [ReservaAdminController::class, 'denegar'])->name('admin.reservas.denegar');
     });
-
     // =========================================================
     // --- GRUPO OPERADOR ---
     // =========================================================

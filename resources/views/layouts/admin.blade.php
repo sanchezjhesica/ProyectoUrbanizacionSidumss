@@ -214,6 +214,12 @@
                         <i class="fas fa-camera-retro"></i> Imágenes Recibidas
                     </a>
                 </li>
+                <!-- REEMPLAZAR ESTO: -->
+                <li>
+                    <a href="{{ route('admin.reservas.index') }}" class="nav-link {{ request()->routeIs('admin.reservas.*') ? 'active' : '' }}">
+                        <i class="fas fa-calendar-check"></i> Solicitud de Reservas
+                    </a>
+                </li>
                 
                 <li class="nav-item">
                     <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="collapse" data-bs-target="#menuReportes">
