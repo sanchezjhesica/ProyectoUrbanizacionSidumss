@@ -23,6 +23,27 @@ class LecturaController extends Controller
         if($id_vivienda) { $queryAgua->where('id_vivienda', $id_vivienda); }
         $cobrosAgua = $queryAgua->orderBy('anio', 'desc')->orderBy('mes', 'desc')->get();
 
+        // =========================================================================
+        // NUEVO: Sumar las reservas ACEPTADAS al cobro de agua de cada vivienda
+        // =========================================================================
+        foreach ($cobrosAgua as $a) {
+            $propietarioId = $a->vivienda->id_propietario ?? null;
+            $monto_reservas = 0;
+
+            if ($propietarioId) {
+                $monto_reservas = DB::table('reservas')
+                    ->where('id_usuario', $propietarioId)
+                    ->whereMonth('fecha_reserva', $a->mes)
+                    ->whereYear('fecha_reserva', $a->anio)
+                    ->where('estado_reserva', 'Aceptado') // Solo las reservas aprobadas por el admin
+                    ->sum('costo_pactado') ?? 0;
+            }
+
+            // Atributos dinámicos para la vista
+            $a->total_real = $a->total_pagar + $monto_reservas;
+            $a->monto_reservas = $monto_reservas;
+        }
+
         $queryMante = CobroMantenimiento::with('vivienda.propietario');
         if($id_vivienda) { $queryMante->where('id_vivienda', $id_vivienda); }
         $cobrosMante = $queryMante->orderBy('anio', 'desc')->orderBy('mes', 'desc')->get();
@@ -32,12 +53,12 @@ class LecturaController extends Controller
         if($id_vivienda) { $queryRemesas->where('id_vivienda', $id_vivienda); }
 
         $cobrosRemesas = $queryRemesas->select(
-                'id_cobro_remesa as id_referencia', // Usamos el ID directo ahora
+                'id_cobro_remesa as id_referencia',
                 'id_vivienda', 
                 'mes', 
                 'anio', 
                 'estado_pago', 
-                'total_remesa as total_mes' // CAMBIO: Usamos total_remesa en lugar de SUM(monto_pactado)
+                'total_remesa as total_mes'
             )
             ->orderBy('anio', 'desc')
             ->orderBy('mes', 'desc')
@@ -62,10 +83,12 @@ class LecturaController extends Controller
             ->where('anio', $cobroAgua->anio)
             ->first();
 
+        // Solo sumar reservas aceptadas
         $monto_reservas = DB::table('reservas')
             ->where('id_usuario', $vivienda->id_propietario)
             ->whereMonth('fecha_reserva', $cobroAgua->mes)
             ->whereYear('fecha_reserva', $cobroAgua->anio)
+            ->where('estado_reserva', 'Aceptado') // <-- CORREGIDO
             ->sum('costo_pactado') ?? 0;
 
         return view('admin.lecturas.recibo', compact('cobroAgua', 'cobroMante'))->with(['monto_wally' => $monto_reservas]);
@@ -78,10 +101,13 @@ class LecturaController extends Controller
     public function imprimirAgua($id)
     {
         $cobro = CobroAgua::with(['vivienda.propietario', 'lectura'])->findOrFail($id);
+        
+        // Solo sumar reservas aceptadas
         $monto_reservas = DB::table('reservas')
             ->where('id_usuario', $cobro->vivienda->id_propietario)
             ->whereMonth('fecha_reserva', $cobro->mes)
             ->whereYear('fecha_reserva', $cobro->anio)
+            ->where('estado_reserva', 'Aceptado') // <-- CORREGIDO
             ->sum('costo_pactado') ?? 0;
 
         return Pdf::loadView('admin.lecturas.recibo_agua', compact('cobro', 'monto_reservas'))
@@ -97,10 +123,7 @@ class LecturaController extends Controller
 
     public function imprimirRemesas($id)
     {
-        // CAMBIO: Ahora solo buscamos una fila, ya no detalles agrupados
         $cobro = CobroRemesa::with(['vivienda.propietario'])->findOrFail($id);
-
-        // Como usamos la vista que espera 'detallesRemesas', pasamos el objeto en un array para no romper el Blade
         $detallesRemesas = [$cobro]; 
 
         return Pdf::loadView('admin.lecturas.recibo_remesas', compact('detallesRemesas', 'cobro'))

@@ -101,7 +101,15 @@
                                 </td>
                                 <td>{{ \Carbon\Carbon::create()->month($a->mes)->translatedFormat('F') }} {{ $a->anio }}</td>
                                 <td><span class="badge-stellar bg-info-soft text-info">{{ $a->lectura->consumo_m3 ?? 0 }} m³</span></td>
-                                <td class="fw-bold text-stellar-blue">Bs. {{ number_format($a->total_pagar, 2) }}</td>
+                                
+                                <!-- TOTAL CORREGIDO CON RESERVAS -->
+                                <td class="fw-bold text-stellar-blue">
+                                    Bs. {{ number_format($a->total_real ?? $a->total_pagar, 2) }}
+                                    @if(($a->monto_reservas ?? 0) > 0)
+                                        <br><small class="text-muted fw-normal" style="font-size: 0.72rem;">(Inc. Bs. {{ number_format($a->monto_reservas, 2) }} reservas)</small>
+                                    @endif
+                                </td>
+
                                 <td>
                                     <span class="badge-stellar {{ $a->estado_pago == 'Pagado' ? 'bg-success-soft text-success' : 'bg-danger-soft text-danger' }}">
                                         {{ $a->estado_pago }}
@@ -115,7 +123,6 @@
                                                 <button class="btn btn-sm btn-success rounded-pill px-3 shadow-sm fw-bold">Cobrar</button>
                                             </form>
                                         @endif
-                                        {{-- RUTA CORREGIDA AGUA --}}
                                         <a href="{{ route('admin.descargar.agua', $a->id_cobro_agua) }}" class="btn-icon-pdf" title="Descargar Recibo PDF">
                                             <i class="fas fa-file-pdf"></i>
                                         </a>
@@ -164,7 +171,6 @@
                                                 <button class="btn btn-sm btn-success rounded-pill px-3 shadow-sm fw-bold">Cobrar</button>
                                             </form>
                                         @endif
-                                        {{-- RUTA CORREGIDA MANTENIMIENTO --}}
                                         <a href="{{ route('admin.descargar.mantenimiento', $m->id_cobro_mantenimiento) }}" class="btn-icon-pdf" title="Descargar PDF">
                                             <i class="fas fa-file-pdf"></i>
                                         </a>
@@ -219,7 +225,6 @@
                                                 <button class="btn btn-sm btn-success rounded-pill px-3 shadow-sm fw-bold">Cobrar</button>
                                             </form>
                                         @endif
-                                        {{-- RUTA CORREGIDA REMESAS --}}
                                         <a href="{{ route('admin.descargar.remesas', $r->id_referencia) }}" class="btn-icon-pdf" title="Descargar PDF">
                                             <i class="fas fa-file-pdf"></i>
                                         </a>

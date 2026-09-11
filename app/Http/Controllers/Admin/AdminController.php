@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Vivienda;
 use App\Models\Egreso;
-use App\Models\CobroAgua;         // Importar modelos nuevos
+use App\Models\CobroAgua;
 use App\Models\CobroMantenimiento;
 use App\Models\CobroRemesa;
 use Illuminate\Http\Request;
@@ -14,53 +14,77 @@ use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
-    public function dashboard()
-{
-    // 1. Estadísticas básicas
-    $totalUsuarios = User::count();
-    $totalViviendas = Vivienda::count();
+ public function dashboard()
+    {
+        // 1. Estadísticas básicas
+        $totalUsuarios = User::count();
+        $totalViviendas = Vivienda::count();
 
-    // 2. Sumar Ingresos Reales (Todo lo pagado en las 3 tablas)
-    $ingresosAgua = CobroAgua::where('estado_pago', 'Pagado')->sum('total_pagar');
-    $ingresosMante = CobroMantenimiento::where('estado_pago', 'Pagado')->sum('monto_fijo');
-    
-    // CAMBIO AQUÍ: Usamos 'total_remesa' en lugar de 'monto_pactado'
-    $ingresosRemesas = CobroRemesa::where('estado_pago', 'Pagado')->sum('total_remesa');
+        // 2. Sumar Ingresos Reales
+        $ingresosAgua = CobroAgua::where('estado_pago', 'Pagado')->sum('total_pagar');
+        $ingresosMante = CobroMantenimiento::where('estado_pago', 'Pagado')->sum('monto_fijo');
+        $ingresosRemesas = CobroRemesa::where('estado_pago', 'Pagado')->sum('total_remesa');
 
-    $ingresos = $ingresosAgua + $ingresosMante + $ingresosRemesas;
+        // =========================================================================
+        // NUEVO: Sumar las reservas de Áreas Recreativas que ya fueron PAGADAS
+        // =========================================================================
+        $ingresosReservas = DB::table('reservas')
+            ->where('estado_pago', 'Pagado')
+            ->sum('costo_pactado') ?? 0;
 
-    // 3. Egresos y Saldo
-    $egresos = Egreso::sum('monto');
-    $saldo = $ingresos - $egresos;
+        // TOTAL GENERAL DE INGRESOS (Agua + Mantenimiento + Expensas + Áreas Recreativas)
+        $ingresos = $ingresosAgua + $ingresosMante + $ingresosRemesas + $ingresosReservas;
 
-    // 4. Deudas Pendientes
-    $deudasPendientes = CobroAgua::with('vivienda')
-        ->where('estado_pago', 'Pendiente')
-        ->orderBy('id_cobro_agua', 'desc')
-        ->take(5)->get();
+        // 3. Egresos y Saldo
+        $egresos = Egreso::sum('monto');
+        $saldo = $ingresos - $egresos;
 
-    // 5. Últimos Egresos
-    $ultimosEgresos = Egreso::orderBy('fecha_egreso', 'desc')->take(5)->get();
+        // 4. Deudas Pendientes
+        $deudasPendientes = CobroAgua::with('vivienda')
+            ->where('estado_pago', 'Pendiente')
+            ->orderBy('id_cobro_agua', 'desc')
+            ->take(5)->get();
 
-    return view('admin.dashboard', compact(
-        'totalUsuarios', 'totalViviendas', 'ingresos', 
-        'egresos', 'saldo', 'deudasPendientes', 'ultimosEgresos'
-    ));
-}
+        // 5. Últimos Egresos
+        $ultimosEgresos = Egreso::orderBy('fecha_egreso', 'desc')->take(5)->get();
 
+        return view('admin.dashboard', compact(
+            'totalUsuarios', 'totalViviendas', 'ingresos', 'ingresosReservas', // <-- Pasamos $ingresosReservas
+            'egresos', 'saldo', 'deudasPendientes', 'ultimosEgresos'
+        ));
+    }
     /**
      * Registrar pago de un Aviso de Agua
      */
     public function registrarPagoAgua($id)
     {
-        $cobro = CobroAgua::findOrFail($id);
-        $cobro->estado_pago = 'Pagado';
-        $cobro->fecha_pago = now();
-        $cobro->save();
+        // 1. Buscamos el cobro de agua y su vivienda relacionada
+        $cobro = CobroAgua::with('vivienda')->findOrFail($id);
+        
+        // 2. Cambiamos el estado del agua a 'Pagado'
+        $cobro->update([
+            'estado_pago' => 'Pagado',
+            'fecha_pago'  => now()
+        ]);
 
-        return redirect()->back()->with('success', 'Pago de Agua registrado correctamente.');
+        // 3. SINCRONIZACIÓN AUTOMÁTICA CON LAS ÁREAS RECREATIVAS:
+        // Buscamos al propietario de esta vivienda
+        $idPropietario = $cobro->vivienda->id_propietario ?? null;
+
+        if ($idPropietario) {
+            // Cambiamos a 'Pagado' todas las reservas aceptadas de ese mes y año
+            DB::table('reservas')
+                ->where('id_usuario', $idPropietario)
+                ->whereMonth('fecha_reserva', $cobro->mes)
+                ->whereYear('fecha_reserva', $cobro->anio)
+                ->where('estado_reserva', 'Aceptado')
+                ->update([
+                    'estado_pago' => 'Pagado' // <-- Cambia a Pagado automáticamente
+                ]);
+        }
+
+        return back()->with('success', '¡Cobro de agua y áreas recreativas registrado como PAGADO!');
     }
-
     /**
      * Registrar pago de Mantenimiento
      */
@@ -111,30 +135,51 @@ public function imagenesRecibidas() {
     // 3. Retornamos la vista que creamos (admin.imagenes.QR)
     return view('admin.imagenes.QR', compact('config', 'comprobantes'));
 }
-public function validarComprobante($id)
-{
-    // 1. Obtener los datos del comprobante
-    $comprobante = DB::table('comprobantes_pago')->where('id_comprobante', $id)->first();
 
-    // 2. Marcar como pagado en la tabla correspondiente (Agua, Mantenimiento o Remesas)
-    if ($comprobante->tipo_pago == 'agua') {
-        DB::table('cobros_agua')->where('id_cobro_agua', $comprobante->id_referencia_pago)
-            ->update(['estado_pago' => 'Pagado', 'fecha_pago' => now()]);
-    } 
-    elseif ($comprobante->tipo_pago == 'mantenimiento') {
-        DB::table('cobros_mantenimiento')->where('id_cobro_mantenimiento', $comprobante->id_referencia_pago)
-            ->update(['estado_pago' => 'Pagado', 'fecha_pago' => now()]);
+    /**
+     * Si el residente pagó por QR y el administrador valida el comprobante
+     */
+    public function validarComprobante($id)
+    {
+        $comprobante = DB::table('comprobantes_pago')->where('id_comprobante', $id)->first();
+
+        if (!$comprobante) {
+            return back()->with('error', 'Comprobante no encontrado.');
+        }
+
+        // Marcar comprobante como validado
+        DB::table('comprobantes_pago')
+            ->where('id_comprobante', $id)
+            ->update(['estado' => 'Validado']);
+
+        // Si el comprobante era de AGUA, también sincronizamos la reserva a 'Pagado'
+        if ($comprobante->tipo_pago == 'agua') {
+            $cobro = CobroAgua::with('vivienda')->find($comprobante->id_referencia_pago);
+            
+            if ($cobro) {
+                $cobro->update(['estado_pago' => 'Pagado', 'fecha_pago' => now()]);
+
+                if ($cobro->vivienda && $cobro->vivienda->id_propietario) {
+                    DB::table('reservas')
+                        ->where('id_usuario', $cobro->vivienda->id_propietario)
+                        ->whereMonth('fecha_reserva', $cobro->mes)
+                        ->whereYear('fecha_reserva', $cobro->anio)
+                        ->where('estado_reserva', 'Aceptado')
+                        ->update(['estado_pago' => 'Pagado']);
+                }
+            }
+        } elseif ($comprobante->tipo_pago == 'mantenimiento') {
+            DB::table('cobros_mantenimiento')
+                ->where('id_cobro_mantenimiento', $comprobante->id_referencia_pago)
+                ->update(['estado_pago' => 'Pagado', 'fecha_pago' => now()]);
+        } elseif ($comprobante->tipo_pago == 'remesas') {
+            DB::table('cobros_remesas')
+                ->where('id_cobro_remesa', $comprobante->id_referencia_pago)
+                ->update(['estado_pago' => 'Pagado', 'fecha_pago' => now()]);
+        }
+
+        return back()->with('success', 'Comprobante validado y pago confirmado con éxito.');
     }
-    elseif ($comprobante->tipo_pago == 'remesas') {
-        DB::table('cobros_remesas')->where('id_cobro_remesa', $comprobante->id_referencia_pago)
-            ->update(['estado_pago' => 'Pagado', 'fecha_pago' => now()]);
-    }
-
-    // 3. Actualizar el estado del comprobante
-    DB::table('comprobantes_pago')->where('id_comprobante', $id)->update(['estado' => 'Validado']);
-
-    return back()->with('success', 'Pago validado y registrado en el sistema.');
-}
 
 public function rechazarComprobante($id)
 {

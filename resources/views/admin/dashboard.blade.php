@@ -46,7 +46,7 @@
 
     <!-- 3. SECCIÓN DE FINANZAS (SIN FONDO, CON TARJETAS LIMPIAS) -->
     <div class="row g-4 mb-5">
-        <!-- Ingresos -->
+  <!-- Ingresos Totales -->
         <div class="col-md-4">
             <div class="card border-0 shadow-sm rounded-4 border-bottom border-success border-5 h-100 finance-card">
                 <div class="card-body p-4 text-center">
@@ -54,7 +54,16 @@
                         <i class="fas fa-arrow-up"></i>
                     </div>
                     <h6 class="text-uppercase small fw-bold text-muted letter-spacing-1">Ingresos Totales</h6>
+                    
+                    <!-- TOTAL CON RESERVAS INCLUIDAS -->
                     <h3 class="fw-bold text-dark mb-0">Bs. {{ number_format($ingresos, 2) }}</h3>
+
+                    <!-- NOTA INFORMATIVA SI HAY RESERVAS COBRADAS -->
+                    @if(($ingresosReservas ?? 0) > 0)
+                        <small class="text-success fw-bold d-block mt-1" style="font-size: 0.72rem;">
+                            <i class="fas fa-check-circle"></i> Inc. Bs. {{ number_format($ingresosReservas, 2) }} por áreas recreativas
+                        </small>
+                    @endif
                 </div>
             </div>
         </div>
