@@ -139,46 +139,72 @@ public function imagenesRecibidas() {
     /**
      * Si el residente pagó por QR y el administrador valida el comprobante
      */
+   /**
+     * Si el residente pagó por QR y el administrador valida el comprobante
+     */
     public function validarComprobante($id)
     {
+        // 1. Buscamos el comprobante
         $comprobante = DB::table('comprobantes_pago')->where('id_comprobante', $id)->first();
 
         if (!$comprobante) {
             return back()->with('error', 'Comprobante no encontrado.');
         }
 
-        // Marcar comprobante como validado
+        // 2. Marcar comprobante como Validado
         DB::table('comprobantes_pago')
             ->where('id_comprobante', $id)
             ->update(['estado' => 'Validado']);
 
-        // Si el comprobante era de AGUA, también sincronizamos la reserva a 'Pagado'
-        if ($comprobante->tipo_pago == 'agua') {
-            $cobro = CobroAgua::with('vivienda')->find($comprobante->id_referencia_pago);
-            
-            if ($cobro) {
-                $cobro->update(['estado_pago' => 'Pagado', 'fecha_pago' => now()]);
+        // 3. CAMBIAR EL ESTADO A 'PAGADO' SEGÚN EL TIPO DE SERVICIO:
 
-                if ($cobro->vivienda && $cobro->vivienda->id_propietario) {
-                    DB::table('reservas')
-                        ->where('id_usuario', $cobro->vivienda->id_propietario)
-                        ->whereMonth('fecha_reserva', $cobro->mes)
-                        ->whereYear('fecha_reserva', $cobro->anio)
-                        ->where('estado_reserva', 'Aceptado')
-                        ->update(['estado_pago' => 'Pagado']);
-                }
+        // CASO A: AGUA POTABLE (+ ÁREAS RECREATIVAS)
+        if ($comprobante->tipo_pago == 'agua') {
+            // Cambiar cobro de agua a Pagado
+            DB::table('cobros_agua')
+                ->where('id_cobro_agua', $comprobante->id_referencia_pago)
+                ->update([
+                    'estado_pago' => 'Pagado',
+                    'fecha_pago'  => now()
+                ]);
+
+            // Buscar datos del cobro para sincronizar las reservas
+            $cobroAgua = DB::table('cobros_agua')
+                ->join('viviendas', 'cobros_agua.id_vivienda', '=', 'viviendas.id_vivienda')
+                ->where('cobros_agua.id_cobro_agua', $comprobante->id_referencia_pago)
+                ->select('cobros_agua.*', 'viviendas.id_propietario')
+                ->first();
+
+            // Si tiene reservas aceptadas en ese mes, pasarlas a 'Pagado'
+            if ($cobroAgua && $cobroAgua->id_propietario) {
+                DB::table('reservas')
+                    ->where('id_usuario', $cobroAgua->id_propietario)
+                    ->whereMonth('fecha_reserva', $cobroAgua->mes)
+                    ->whereYear('fecha_reserva', $cobroAgua->anio)
+                    ->where('estado_reserva', 'Aceptado')
+                    ->update(['estado_pago' => 'Pagado']);
             }
-        } elseif ($comprobante->tipo_pago == 'mantenimiento') {
+        } 
+        // CASO B: MANTENIMIENTO
+        elseif ($comprobante->tipo_pago == 'mantenimiento') {
             DB::table('cobros_mantenimiento')
                 ->where('id_cobro_mantenimiento', $comprobante->id_referencia_pago)
-                ->update(['estado_pago' => 'Pagado', 'fecha_pago' => now()]);
-        } elseif ($comprobante->tipo_pago == 'remesas') {
+                ->update([
+                    'estado_pago' => 'Pagado',
+                    'fecha_pago'  => now()
+                ]);
+        } 
+        // CASO C: EXPENSAS / REMESAS
+        elseif ($comprobante->tipo_pago == 'remesas') {
             DB::table('cobros_remesas')
                 ->where('id_cobro_remesa', $comprobante->id_referencia_pago)
-                ->update(['estado_pago' => 'Pagado', 'fecha_pago' => now()]);
+                ->update([
+                    'estado_pago' => 'Pagado',
+                    'fecha_pago'  => now()
+                ]);
         }
 
-        return back()->with('success', 'Comprobante validado y pago confirmado con éxito.');
+        return back()->with('success', '¡Comprobante validado! El cobro y sus reservas asociadas pasaron a PAGADO.');
     }
 
 public function rechazarComprobante($id)

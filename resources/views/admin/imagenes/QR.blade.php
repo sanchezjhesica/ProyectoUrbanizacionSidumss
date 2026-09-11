@@ -15,6 +15,11 @@
             <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
         </div>
     @endif
+    @if(session('error'))
+        <div class="alert alert-danger border-0 shadow-sm rounded-4 mb-4">
+            <i class="fas fa-times-circle me-2"></i> {{ session('error') }}
+        </div>
+    @endif
 
     <div class="row g-4">
         <!-- 2. PANEL: SUBIR/ACTUALIZAR QR OFICIAL -->
@@ -54,62 +59,90 @@
             <div class="card border-0 shadow-sm rounded-4 h-100">
                 <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
                     <h5 class="mb-0 fw-bold text-dark">Comprobantes Recibidos</h5>
-                    <span class="badge bg-blue-soft text-stellar-blue px-3 rounded-pill">Total: {{ count($comprobantes) }}</span>
+                    <span class="badge bg-blue-soft text-stellar-blue px-3 py-1 rounded-pill small fw-bold">Total: {{ count($comprobantes) }}</span>
                 </div>
                 <div class="card-body p-4">
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle">
+                        <table class="table table-hover align-middle mb-0">
                             <thead class="bg-light">
                                 <tr>
-                                    <th class="uppercase-tracking">Propietario / Casa</th>
+                                    <th class="uppercase-tracking">Propietario</th>
                                     <th class="uppercase-tracking">Concepto</th>
-                                    <th class="uppercase-tracking">Imagen</th>
-                                    <th class="uppercase-tracking text-center">Acción</th>
+                                    <th class="uppercase-tracking text-center">Comprobante</th>
+                                    <th class="uppercase-tracking text-center" style="width: 140px;">Acción / Estado</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($comprobantes as $c)
                                 <tr>
+                                    <!-- PROPIETARIO -->
                                     <td>
                                         <span class="fw-bold d-block text-dark">{{ $c->nombre }} {{ $c->apellido_paterno }}</span>
-                                        <small class="text-muted">CI: {{ $c->ci }}</small>
+                                        <small class="text-muted font-monospace">CI: {{ $c->ci }}</small>
                                     </td>
+
+                                    <!-- CONCEPTO DE PAGO -->
                                     <td>
-                                        <span class="badge rounded-pill bg-light text-dark border px-2">
-                                            {{ strtoupper($c->tipo_pago) }} #{{ $c->id_referencia_pago }}
-                                        </span>
+                                        @if($c->tipo_pago == 'agua')
+                                            <span class="badge bg-info-soft text-info rounded-pill px-2.5 py-1 fw-bold">
+                                                <i class="fas fa-tint me-1"></i> AGUA #{{ $c->id_referencia_pago }}
+                                            </span>
+                                        @elseif($c->tipo_pago == 'mantenimiento')
+                                            <span class="badge bg-warning-soft text-warning-dark rounded-pill px-2.5 py-1 fw-bold">
+                                                <i class="fas fa-tools me-1"></i> MANTE #{{ $c->id_referencia_pago }}
+                                            </span>
+                                        @else
+                                            <span class="badge bg-purple-soft text-purple rounded-pill px-2.5 py-1 fw-bold">
+                                                <i class="fas fa-hand-holding-usd me-1"></i> EXPENSAS #{{ $c->id_referencia_pago }}
+                                            </span>
+                                        @endif
                                     </td>
-                                    <td>
-                                        <!-- Miniatura con zoom al click -->
-                                        <a href="{{ asset('storage/' . $c->ruta_imagen) }}" target="_blank">
-                                            <img src="{{ asset('storage/' . $c->ruta_imagen) }}" class="rounded shadow-sm border" style="width: 50px; height: 50px; object-fit: cover;">
+
+                                    <!-- MINIATURA DE IMAGEN -->
+                                    <td class="text-center">
+                                        <a href="{{ asset('storage/' . $c->ruta_imagen) }}" target="_blank" title="Ver comprobante en tamaño completo">
+                                            <img src="{{ asset('storage/' . $c->ruta_imagen) }}" class="rounded shadow-sm border comprobante-thumb" alt="Foto">
                                         </a>
                                     </td>
-                                        <td class="text-center">
-                                            <div class="d-flex justify-content-center gap-2">
+
+                                    <!-- ACCIÓN O ESTADO (DINÁMICO) -->
+                                    <td class="text-center">
+                                        @if($c->estado == 'Pendiente')
+                                            <div class="d-flex justify-content-center align-items-center gap-1">
                                                 <!-- BOTÓN VALIDAR -->
                                                 <form action="{{ route('admin.comprobante.validar', $c->id_comprobante) }}" method="POST">
                                                     @csrf
-                                                    <button type="submit" class="btn btn-sm btn-success rounded-pill px-3">
-                                                        <i class="fas fa-check"></i> Validar
+                                                    <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 fw-bold" title="Confirmar y marcar como pagado">
+                                                        <i class="fas fa-check me-1"></i> Validar
                                                     </button>
                                                 </form>
 
                                                 <!-- BOTÓN RECHAZAR -->
                                                 <form action="{{ route('admin.comprobante.rechazar', $c->id_comprobante) }}" method="POST">
                                                     @csrf
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle p-2" title="Rechazar comprobante">
                                                         <i class="fas fa-times"></i>
                                                     </button>
                                                 </form>
                                             </div>
-                                        </td>
+                                        @elseif($c->estado == 'Validado')
+                                            <!-- ESTADO YA VALIDADO -->
+                                            <span class="badge bg-success-soft text-success rounded-pill px-3 py-1.5 fw-bold">
+                                                <i class="fas fa-check-circle me-1"></i> Validado
+                                            </span>
+                                        @else
+                                            <!-- ESTADO RECHAZADO -->
+                                            <span class="badge bg-danger-soft text-danger rounded-pill px-3 py-1.5 fw-bold">
+                                                <i class="fas fa-times-circle me-1"></i> Rechazado
+                                            </span>
+                                        @endif
+                                    </td>
                                 </tr>
                                 @empty
                                 <tr>
                                     <td colspan="4" class="text-center py-5 text-muted">
                                         <i class="fas fa-images fa-3x mb-3 opacity-25"></i>
-                                        <p>No se han recibido nuevos comprobantes.</p>
+                                        <p class="mb-0">No se han recibido nuevos comprobantes.</p>
                                     </td>
                                 </tr>
                                 @endforelse
@@ -125,12 +158,19 @@
 <style>
     :root {
         --stellar-blue: #0e5cad;
-        --stellar-grad: linear-gradient(45deg, #79f1a4 15%, #0e5cad 85%);
         --stellar-button: linear-gradient(45deg, #22349e 0%, #8183e6 100%);
     }
 
     .text-stellar-blue { color: var(--stellar-blue); }
     .bg-blue-soft { background-color: rgba(14, 92, 173, 0.08); }
+    .bg-success-soft { background-color: rgba(16, 185, 129, 0.12); color: #059669 !important; }
+    .bg-danger-soft { background-color: rgba(239, 68, 68, 0.12); color: #dc2626 !important; }
+    .bg-info-soft { background-color: rgba(14, 165, 233, 0.12); color: #0284c7 !important; }
+    .bg-warning-soft { background-color: rgba(245, 158, 11, 0.15); }
+    .text-warning-dark { color: #b45309 !important; }
+    .bg-purple-soft { background-color: rgba(139, 92, 246, 0.12); }
+    .text-purple { color: #7c3aed !important; }
+
     .uppercase-tracking { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 700; color: #888; }
 
     /* Previsualización del QR */
@@ -147,7 +187,15 @@
         background: #f8f9fa;
     }
 
-    .img-carousel-hero { height: 350px; object-fit: cover; }
+    .comprobante-thumb {
+        width: 48px;
+        height: 48px;
+        object-fit: cover;
+        transition: transform 0.2s ease;
+    }
+    .comprobante-thumb:hover {
+        transform: scale(1.15);
+    }
 
     /* Inputs y Botones */
     .form-stellar { border-radius: 10px; border: 1px solid #eee; padding: 10px; font-size: 0.85rem; }
