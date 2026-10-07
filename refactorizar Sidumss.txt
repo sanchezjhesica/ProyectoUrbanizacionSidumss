@@ -1,14 +1,2 @@
-Ahora quiero refactorizar SidumssNorteA aplicando una estructura más profesional.
-Actualmente todo está dividido en carpetas para tres tipos: Administrador, propietario y operador
-Requisitos:
-- quiero que este mejor organizado y entendible
-- conserva todas las funcionalidades actuales;
-- HTML debe contener principalmente estructura;
-- si se puede me gustaria que los estilos esten en una carpeta si es que se puede si no manten los estilos como estan;
-- utiliza nombres claros para funciones y añade comentarios que hace cada funcion;
-- elimina código duplicado si existe;
-- agrega comentarios solamente donde aporten valor;
-- evita comentarios obvios;
-- no utilices frameworks;
-- la aplicación debe continuar funcionando totalmente.
--solo usa los lenguajes que están en el proyecto que son php, js, y elocuent estamos usando Modelo Vista y Controlador 
+
+Refactoriza exclusivamente el modulo de Usuarios y Roles(app/Http/Controllers/Admin/UsuarioController.php, modelos User y Rol, y vistas dentro de resources/views/admin/usuarios).Requisitos:- Conserva la lógica y rutas en Laravel sin romper funcionalidades.- Limpia las vistas Blade dejando solo Html- Si hay CSS embebido en las vistas, muévelo a public/css/app.css o public/css/custom.css e inclúyelo adecuadamente solo en caso de que se pueda y mantega el css en la pagina- Elimina - Agrega comentarios breves sobre cada método indicando su propósito (evita comentarios obvios).código duplicado- No proceses ningún otro módulo por ahora.- todas las funcionalidades deben de funcionar-solo usa los lenguajes que están en el proyecto que son php, js, y elocuent estamos usando Modelo Vista y Controlador - la aplicación debe continuar funcionando totalmente.

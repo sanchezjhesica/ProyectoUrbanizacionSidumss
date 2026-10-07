@@ -22,7 +22,6 @@ class CobroRemesa extends Model
         'fecha_pago'
     ];
 
-    // ESTA ES LA FUNCIÓN QUE FALTA:
     public function configuracion()
     {
         return $this->belongsTo(RemesaConfig::class, 'id_remesa_config', 'id_remesa_config');

@@ -102,7 +102,6 @@
                                 <td>{{ \Carbon\Carbon::create()->month($a->mes)->translatedFormat('F') }} {{ $a->anio }}</td>
                                 <td><span class="badge-stellar bg-info-soft text-info">{{ $a->lectura->consumo_m3 ?? 0 }} m³</span></td>
                                 
-                                <!-- TOTAL CORREGIDO CON RESERVAS -->
                                 <td class="fw-bold text-stellar-blue">
                                     Bs. {{ number_format($a->total_real ?? $a->total_pagar, 2) }}
                                     @if(($a->monto_reservas ?? 0) > 0)
@@ -123,9 +122,13 @@
                                                 <button class="btn btn-sm btn-success rounded-pill px-3 shadow-sm fw-bold">Cobrar</button>
                                             </form>
                                         @endif
-                                        <a href="{{ route('admin.descargar.agua', $a->id_cobro_agua) }}" class="btn-icon-pdf" title="Descargar Recibo PDF">
-                                            <i class="fas fa-file-pdf"></i>
-                                        </a>
+
+                                        {{-- EL PDF SOLO APARECE SI ESTÁ PAGADO --}}
+                                        @if($a->estado_pago == 'Pagado')
+                                            <a href="{{ route('admin.descargar.agua', $a->id_cobro_agua) }}" class="btn-icon-pdf" title="Descargar Recibo Oficial PDF">
+                                                <i class="fas fa-file-pdf"></i>
+                                            </a>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -171,9 +174,13 @@
                                                 <button class="btn btn-sm btn-success rounded-pill px-3 shadow-sm fw-bold">Cobrar</button>
                                             </form>
                                         @endif
-                                        <a href="{{ route('admin.descargar.mantenimiento', $m->id_cobro_mantenimiento) }}" class="btn-icon-pdf" title="Descargar PDF">
-                                            <i class="fas fa-file-pdf"></i>
-                                        </a>
+
+                                        {{-- EL PDF SOLO APARECE SI ESTÁ PAGADO --}}
+                                        @if($m->estado_pago == 'Pagado')
+                                            <a href="{{ route('admin.descargar.mantenimiento', $m->id_cobro_mantenimiento) }}" class="btn-icon-pdf" title="Descargar Recibo Oficial PDF">
+                                                <i class="fas fa-file-pdf"></i>
+                                            </a>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -225,9 +232,13 @@
                                                 <button class="btn btn-sm btn-success rounded-pill px-3 shadow-sm fw-bold">Cobrar</button>
                                             </form>
                                         @endif
-                                        <a href="{{ route('admin.descargar.remesas', $r->id_referencia) }}" class="btn-icon-pdf" title="Descargar PDF">
-                                            <i class="fas fa-file-pdf"></i>
-                                        </a>
+
+                                        {{-- EL PDF SOLO APARECE SI ESTÁ PAGADO --}}
+                                        @if($r->estado_pago == 'Pagado')
+                                            <a href="{{ route('admin.descargar.remesas', $r->id_referencia) }}" class="btn-icon-pdf" title="Descargar Recibo Oficial PDF">
+                                                <i class="fas fa-file-pdf"></i>
+                                            </a>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
