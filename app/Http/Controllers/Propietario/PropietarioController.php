@@ -67,11 +67,17 @@ class PropietarioController extends Controller
         return view('propietario.avisos', compact('avisosAgua', 'avisosMantenimiento', 'avisosRemesas', 'config'));
     }
 
-    public function misReservas() {
+   public function misReservas() {
         $id_usuario = Auth::id();
+
         $reservas = DB::table('reservas')
             ->join('areas_recreativas', 'reservas.id_area', '=', 'areas_recreativas.id_area')
             ->where('reservas.id_usuario', $id_usuario)
+            // ==========================================================
+            // FILTRO: Solo reservas del mes y año actual
+            // ==========================================================
+            ->whereMonth('reservas.fecha_reserva', now()->month)
+            ->whereYear('reservas.fecha_reserva', now()->year)
             ->select('reservas.*', 'areas_recreativas.nombre_area') 
             ->orderBy('fecha_reserva', 'desc')
             ->get();
@@ -79,27 +85,60 @@ class PropietarioController extends Controller
         $areas = DB::table('areas_recreativas')->get();
         return view('propietario.reservas', compact('reservas', 'areas'));
     }
-
-    public function guardarReserva(Request $request) {
+    public function guardarReserva(Request $request) 
+    {
+        // 1. Validación de campos
         $request->validate([
-            'id_area' => 'required',
-            'fecha' => 'required|date|after_or_equal:today',
+            'id_area'     => 'required|exists:areas_recreativas,id_area',
+            'fecha'       => 'required|date|after_or_equal:today',
+            'hora_inicio' => 'nullable',
+            'hora_fin'    => 'nullable',
+        ], [
+            'fecha.after_or_equal' => 'No puede reservar en fechas pasadas.',
         ]);
 
         $id_usuario = Auth::id();
         $area = DB::table('areas_recreativas')->where('id_area', $request->id_area)->first();
 
-        // Se registra la reserva con 'estado_reserva' = 'Pendiente' para aprobación del admin
+        // =========================================================================
+        // REGLA CLAVE: Si no enviaron hora (ej. Salón), rellenar TODO EL DÍA automáticamente
+        // =========================================================================
+        $horaInicio = $request->filled('hora_inicio') ? $request->hora_inicio : '08:00:00';
+        $horaFin    = $request->filled('hora_fin')    ? $request->hora_fin    : '23:59:00';
+
+        // 2. VALIDAR QUE NO HAYA CRUCE DE HORARIOS
+        $consultaCruce = DB::table('reservas')
+            ->where('id_area', $request->id_area)
+            ->where('fecha_reserva', $request->fecha)
+            ->whereIn('estado_reserva', ['Pendiente', 'Aceptado'])
+            ->where(function($query) use ($horaInicio, $horaFin) {
+                $query->whereBetween('hora_inicio', [$horaInicio, $horaFin])
+                      ->orWhereBetween('hora_fin', [$horaInicio, $horaFin])
+                      ->orWhere(function($sub) use ($horaInicio, $horaFin) {
+                          $sub->where('hora_inicio', '<=', $horaInicio)
+                              ->where('hora_fin', '>=', $horaFin);
+                      });
+            });
+
+        if ($consultaCruce->exists()) {
+            return back()->withInput()->withErrors([
+                'cruce' => "El espacio '{$area->nombre_area}' ya tiene una reserva en el horario de {$horaInicio} a {$horaFin} para el día seleccionado."
+            ]);
+        }
+
+        // 3. GUARDAR SIN NULL (Con las horas de todo el día si fue salón)
         DB::table('reservas')->insert([
             'id_usuario'     => $id_usuario,
             'id_area'        => $request->id_area,
             'fecha_reserva'  => $request->fecha,
+            'hora_inicio'    => $horaInicio, // <-- Guarda 08:00:00
+            'hora_fin'       => $horaFin,    // <-- Guarda 23:59:00
             'costo_pactado'  => $area->costo_reserva,
             'estado_pago'    => 'Pendiente',
-            'estado_reserva' => 'Pendiente' // <-- CAMBIO CLAVE
+            'estado_reserva' => 'Pendiente'
         ]);
 
-        return redirect()->back()->with('success', 'Solicitud de reserva enviada con éxito. Pendiente de aprobación por la administración.');
+        return redirect()->back()->with('success', 'Solicitud de reserva enviada con éxito. Pendiente de aprobación.');
     }
 
     // --- MÉTODOS PARA DESCARGAR PDF ---
