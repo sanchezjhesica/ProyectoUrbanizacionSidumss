@@ -14,7 +14,7 @@
     @if(session('success'))
         <div class="alert alert-stellar-success alert-dismissible fade show mb-4 shadow-sm" role="alert">
             <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
 
@@ -62,24 +62,24 @@
                                     <div class="fw-bold text-dark text-capitalize">{{ \Carbon\Carbon::create()->month($a->mes)->translatedFormat('F') }} {{ $a->anio }}</div>
                                 </td>
                                 <td>
-                                    <!-- TOTAL CON RESERVAS -->
                                     <span class="fw-bold text-stellar-blue fs-6">Bs. {{ number_format($a->total_real ?? $a->total_pagar, 2) }}</span>
                                 </td>
                                 <td class="text-center">
-                                    <!-- ESTADO -->
                                     <span class="badge-stellar {{ $a->estado_pago == 'Pagado' ? 'bg-success-soft text-success' : 'bg-danger-soft text-danger' }}">
                                         {{ $a->estado_pago }}
                                     </span>
                                 </td>
                                 <td class="text-center pe-3">
                                     <div class="d-flex justify-content-center gap-2">
-                                        <a href="{{ route('propietario.descargar.agua', $a->id_cobro_agua) }}" class="btn btn-view-stellar" title="Descargar PDF">
-                                            <i class="fas fa-file-pdf me-1"></i> PDF
-                                        </a>
-                                        @if($a->estado_pago != 'Pagado')
-                                        <button class="btn btn-qr-stellar" data-bs-toggle="modal" data-bs-target="#modalQR" data-id="{{ $a->id_cobro_agua }}" data-tipo="agua">
-                                            <i class="fas fa-qrcode me-1"></i> Pagar QR
-                                        </button>
+                                        {{-- PDF SOLO SI ESTÁ PAGADO --}}
+                                        @if($a->estado_pago == 'Pagado')
+                                            <a href="{{ route('propietario.descargar.agua', $a->id_cobro_agua) }}" class="btn btn-view-stellar" title="Descargar Recibo Oficial">
+                                                <i class="fas fa-file-pdf me-1"></i> PDF
+                                            </a>
+                                        @else
+                                            <button class="btn btn-qr-stellar" data-bs-toggle="modal" data-bs-target="#modalQR" data-id="{{ $a->id_cobro_agua }}" data-tipo="agua">
+                                                <i class="fas fa-qrcode me-1"></i> Pagar QR
+                                            </button>
                                         @endif
                                     </div>
                                 </td>
@@ -117,13 +117,15 @@
                             </td>
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
-                                    <a href="{{ route('propietario.descargar.mantenimiento', $m->id_cobro_mantenimiento) }}" class="btn btn-view-stellar">
-                                        <i class="fas fa-file-pdf me-1"></i> PDF
-                                    </a>
-                                    @if($m->estado_pago != 'Pagado')
-                                    <button class="btn btn-qr-stellar" data-bs-toggle="modal" data-bs-target="#modalQR" data-id="{{ $m->id_cobro_mantenimiento }}" data-tipo="mantenimiento">
-                                        <i class="fas fa-qrcode me-1"></i> Pagar QR
-                                    </button>
+                                    {{-- PDF SOLO SI ESTÁ PAGADO --}}
+                                    @if($m->estado_pago == 'Pagado')
+                                        <a href="{{ route('propietario.descargar.mantenimiento', $m->id_cobro_mantenimiento) }}" class="btn btn-view-stellar" title="Descargar Recibo Oficial">
+                                            <i class="fas fa-file-pdf me-1"></i> PDF
+                                        </a>
+                                    @else
+                                        <button class="btn btn-qr-stellar" data-bs-toggle="modal" data-bs-target="#modalQR" data-id="{{ $m->id_cobro_mantenimiento }}" data-tipo="mantenimiento">
+                                            <i class="fas fa-qrcode me-1"></i> Pagar QR
+                                        </button>
                                     @endif
                                 </div>
                             </td>
@@ -160,13 +162,15 @@
                             </td>
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
-                                    <a href="{{ route('propietario.descargar.remesas', $r->id_referencia) }}" class="btn btn-view-stellar">
-                                        <i class="fas fa-file-pdf me-1"></i> PDF
-                                    </a>
-                                    @if($r->estado_pago != 'Pagado')
-                                    <button class="btn btn-qr-stellar" data-bs-toggle="modal" data-bs-target="#modalQR" data-id="{{ $r->id_referencia }}" data-tipo="remesas">
-                                        <i class="fas fa-qrcode me-1"></i> Pagar QR
-                                    </button>
+                                    {{-- PDF SOLO SI ESTÁ PAGADO --}}
+                                    @if($r->estado_pago == 'Pagado')
+                                        <a href="{{ route('propietario.descargar.remesas', $r->id_referencia) }}" class="btn btn-view-stellar" title="Descargar Recibo Oficial">
+                                            <i class="fas fa-file-pdf me-1"></i> PDF
+                                        </a>
+                                    @else
+                                        <button class="btn btn-qr-stellar" data-bs-toggle="modal" data-bs-target="#modalQR" data-id="{{ $r->id_referencia }}" data-tipo="remesas">
+                                            <i class="fas fa-qrcode me-1"></i> Pagar QR
+                                        </button>
                                     @endif
                                 </div>
                             </td>
