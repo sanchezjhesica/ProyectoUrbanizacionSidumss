@@ -73,25 +73,26 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/tarifas/global', [TarifaController::class, 'updateGlobal'])->name('admin.tarifas.updateGlobal');
         Route::put('/tarifas/remesa/{id}', [TarifaController::class, 'updateRemesa'])->name('admin.tarifas.updateRemesa');
         Route::put('/tarifas/area/{id}', [TarifaController::class, 'updateArea'])->name('admin.tarifas.updateArea');
-        //validacion del coreo electronico
+        
+        // Validación del correo electrónico
         Route::post('/usuarios/enviar-codigo', [UsuarioController::class, 'enviarCodigoVerificacion'])->name('admin.usuarios.enviar_codigo');
-   // Rutas para Gestión de Reservas (AGREGAR 'admin.' EN EL NOMBRE)
+
+        // =========================================================
+        // RUTAS PARA GESTIÓN DE RESERVAS
+        // =========================================================
         Route::get('/reservas', [ReservaAdminController::class, 'index'])->name('admin.reservas.index');
+        Route::get('/reservas/descargar-anual', [ReservaAdminController::class, 'descargarAnual'])->name('admin.reservas.descargar.anual'); // <-- NUEVA RUTA
         Route::patch('/reservas/{id}/aceptar', [ReservaAdminController::class, 'aceptar'])->name('admin.reservas.aceptar');
         Route::patch('/reservas/{id}/denegar', [ReservaAdminController::class, 'denegar'])->name('admin.reservas.denegar');
     });
+
     // =========================================================
     // --- GRUPO OPERADOR ---
     // =========================================================
     Route::middleware(['operador'])->prefix('operador')->group(function () {
-            // 1. Vista del Dashboard (Historial)
-    Route::get('/dashboard', [OperadorController::class, 'index'])->name('operador.dashboard');
-    
-    // 2. ESTA ES LA RUTA QUE TE FALTA Y CAUSA EL ERROR:
-    Route::get('/lecturas/nueva', [OperadorController::class, 'nuevaLectura'])->name('operador.lecturas.crear');
-    
-    // 3. Acción de Guardar
-    Route::post('/lecturas/guardar', [OperadorController::class, 'guardarLectura'])->name('operador.lecturas.store');
+        Route::get('/dashboard', [OperadorController::class, 'index'])->name('operador.dashboard');
+        Route::get('/lecturas/nueva', [OperadorController::class, 'nuevaLectura'])->name('operador.lecturas.crear');
+        Route::post('/lecturas/guardar', [OperadorController::class, 'guardarLectura'])->name('operador.lecturas.store');
     });
 
     // =========================================================
@@ -115,9 +116,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/descargar/agua/{id}', [PropietarioController::class, 'descargarAvisoAgua'])->name('propietario.descargar.agua');
         Route::get('/descargar/mantenimiento/{id}', [PropietarioController::class, 'descargarAvisoMantenimiento'])->name('propietario.descargar.mantenimiento');
         Route::get('/descargar/remesas/{id}', [PropietarioController::class, 'descargarAvisoRemesas'])->name('propietario.descargar.remesas');
-            // Rutas para cambio de contraseña
+
+        // Rutas para cambio de contraseña
         Route::get('/perfil/seguridad', [PropietarioController::class, 'editPassword'])->name('propietario.password.edit');
         Route::post('/perfil/seguridad', [PropietarioController::class, 'updatePassword'])->name('propietario.password.update');
-
     });
 });
