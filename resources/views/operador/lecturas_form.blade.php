@@ -122,34 +122,73 @@
 </style>
 
 <script>
-    // PASAMOS LA LISTA DE VIVIENDAS DE PHP A JAVASCRIPT
     const viviendas = @json($viviendas);
+    const inputBuscarCasa = document.getElementById('input-buscar-casa');
+    const inputLecturaActual = document.querySelector('input[name="lectura_actual"]');
+    const infoCard = document.getElementById('vivienda-info-card');
+    const mensajeError = document.getElementById('mensaje-busqueda');
 
-    document.getElementById('input-buscar-casa').addEventListener('input', function() {
+    let lecturaAnteriorActual = 0;
+
+    // 1. Al buscar la casa
+    inputBuscarCasa.addEventListener('input', function() {
         const nroCasa = this.value;
-        const infoCard = document.getElementById('vivienda-info-card');
-        const mensajeError = document.getElementById('mensaje-busqueda');
-        
-        // Buscar la vivienda en el array
         const viviendaEncontrada = viviendas.find(v => v.nro_casa == nroCasa);
 
         if (viviendaEncontrada) {
             infoCard.classList.remove('d-none');
             mensajeError.classList.add('d-none');
-            
-            // Llenar datos
+
+            let nombreDueno = 'SIN PROPIETARIO';
+            if (viviendaEncontrada.propietario) {
+                nombreDueno = (viviendaEncontrada.propietario.nombre + ' ' + (viviendaEncontrada.propietario.apellido_paterno || '')).trim();
+            }
+
             document.getElementById('info-casa-titulo').innerText = 'Casa #' + viviendaEncontrada.nro_casa;
-            document.getElementById('info-propietario').innerText = viviendaEncontrada.propietario ? (viviendaEncontrada.propietario.nombre + ' ' + viviendaEncontrada.propietario.apellido_paterno) : 'SIN PROPIETARIO';
+            document.getElementById('info-propietario').innerText = nombreDueno;
             document.getElementById('info-medidor').innerText = viviendaEncontrada.nro_medidor;
-            document.getElementById('valor-anterior').innerText = viviendaEncontrada.ultima_lectura;
+            
+            // Guardamos la lectura anterior
+            lecturaAnteriorActual = parseFloat(viviendaEncontrada.ultima_lectura || 0);
+            document.getElementById('valor-anterior').innerText = lecturaAnteriorActual.toFixed(2);
             document.getElementById('id_vivienda_hidden').value = viviendaEncontrada.id_vivienda;
+
+            // Bloquear que se pueda ingresar un valor menor en el input
+            inputLecturaActual.min = (lecturaAnteriorActual + 0.01).toFixed(2);
+            validarLecturaEnVivo();
         } else {
             infoCard.classList.add('d-none');
             document.getElementById('id_vivienda_hidden').value = '';
-            if(nroCasa !== "") {
+            lecturaAnteriorActual = 0;
+            if (nroCasa !== "") {
                 mensajeError.classList.remove('d-none');
             }
         }
     });
+
+    // 2. Validación en vivo mientras el operador escribe la nueva lectura
+    inputLecturaActual.addEventListener('input', validarLecturaEnVivo);
+
+    function validarLecturaEnVivo() {
+        const valorIngresado = parseFloat(inputLecturaActual.value);
+        let errorSpan = document.getElementById('error-lectura-menor');
+
+        // Crear mensaje de error si no existe
+        if (!errorSpan) {
+            errorSpan = document.createElement('div');
+            errorSpan.id = 'error-lectura-menor';
+            errorSpan.className = 'text-danger fw-bold small mt-2 d-none';
+            inputLecturaActual.parentElement.parentElement.appendChild(errorSpan);
+        }
+
+        if (!isNaN(valorIngresado) && valorIngresado <= lecturaAnteriorActual && lecturaAnteriorActual > 0) {
+            errorSpan.innerHTML = `<i class="fas fa-exclamation-circle me-1"></i> La nueva lectura debe ser superior a ${lecturaAnteriorActual.toFixed(2)} m³`;
+            errorSpan.classList.remove('d-none');
+            inputLecturaActual.classList.add('is-invalid');
+        } else {
+            errorSpan.classList.add('d-none');
+            inputLecturaActual.classList.remove('is-invalid');
+        }
+    }
 </script>
 @endsection

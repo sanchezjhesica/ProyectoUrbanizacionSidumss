@@ -22,10 +22,9 @@ class Vivienda extends Model
 
     // Relación con el Propietario (Uno a Muchos: una vivienda tiene un dueño)
     public function propietario()
-    {
-        return $this->belongsTo(User::class, 'id_propietario', 'id_usuario');
-    }
-
+{
+    return $this->belongsTo(\App\Models\User::class, 'id_propietario', 'id_usuario');
+}
     // --- NUEVAS RELACIONES (Divididas por tipo de cobro) ---
 
     /**
