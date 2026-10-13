@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Storage;
 
 class TarifaController extends Controller
 {
+    /**
+     * Muestra la vista de configuración de tarifas.
+     */
     public function edit()
     {
         $tarifaGlobalActual       = ConfiguracionTarifa::orderBy('id_config', 'desc')->first();
@@ -26,7 +29,7 @@ class TarifaController extends Controller
     }
 
     /**
-     * AQUÍ SÍ: Usamos transacciones porque hay 2 operaciones consecutivas
+     * Actualiza las tarifas globales y HEREDA el código QR sin dejar NULL.
      */
     public function updateGlobal(Request $request) 
     {
@@ -36,43 +39,49 @@ class TarifaController extends Controller
             'monto_mantenimiento_fijo' => ['required', 'numeric', 'gt:0'],
             'porcentaje_mora'          => ['required', 'numeric', 'gte:0'],
         ], [
-            'precio_m3_agua.gt'                 => 'El precio por m³ de agua debe ser MAYOR a 0.',
-            'monto_alcantarillado.gt'           => 'El monto de alcantarillado debe ser MAYOR a 0.',
-            'monto_mantenimiento_fijo.gt'       => 'El monto de mantenimiento fijo debe ser MAYOR a 0.',
-            'porcentaje_mora.gte'               => 'El porcentaje de mora no puede ser negativo.',
+            'precio_m3_agua.gt'           => 'El precio por m³ de agua debe ser MAYOR a 0.',
+            'monto_alcantarillado.gt'     => 'El monto de alcantarillado debe ser MAYOR a 0.',
+            'monto_mantenimiento_fijo.gt' => 'El monto de mantenimiento fijo debe ser MAYOR a 0.',
+            'porcentaje_mora.gte'         => 'El porcentaje de mora no puede ser negativo.',
         ]);
 
-        // INICIAMOS LA TRANSACCIÓN
         DB::beginTransaction();
 
-        try {
-            // Operación 1: Desactivar la configuración anterior
+try {
+            // 1. OBTENER EL ÚLTIMO QR SUBIDO EN EL SISTEMA
+            $ultimoQR = ConfiguracionTarifa::whereNotNull('qr_pago')
+                ->where('qr_pago', '!=', 'sin_qr')
+                ->orderBy('id_config', 'desc')
+                ->value('qr_pago');
+
+            // Si nunca se ha subido un QR, usamos 'sin_qr'
+            $qrVigente = $ultimoQR ?? 'sin_qr';
+
+            // 2. Desactivar la configuración anterior
             ConfiguracionTarifa::where('estado', 1)->update(['estado' => 0]);
 
-            // Operación 2: Crear la nueva configuración activa
+            // 3. Crear la nueva tarifa activa con el QR heredado
             ConfiguracionTarifa::create([
                 'precio_m3_agua'           => $datosValidados['precio_m3_agua'],
                 'monto_alcantarillado'     => $datosValidados['monto_alcantarillado'],
                 'monto_mantenimiento_fijo' => $datosValidados['monto_mantenimiento_fijo'],
                 'porcentaje_mora'          => $datosValidados['porcentaje_mora'],
+                'qr_pago'                  => $qrVigente, // <-- Ahora sí lo guardará porque está en $fillable
                 'fecha_aplicacion'         => now(),
                 'estado'                   => 1
             ]);
 
-            // Ambas salieron bien: Guardamos los cambios definitivamente
             DB::commit();
-
-            return back()->with('success', '¡Tarifas globales actualizadas con éxito!');
+            return back()->with('success', '¡Tarifas globales actualizadas y QR heredado con éxito!');
 
         } catch (\Exception $e) {
-            // Si alguna falló: Revertimos todo para no dejar el sistema sin tarifas
             DB::rollBack();
             return back()->with('error', 'Error al actualizar las tarifas: ' . $e->getMessage());
         }
     }
 
     /**
-     * AQUÍ NO ES NECESARIO: Es solo una operación única
+     * Actualiza el precio de una remesa.
      */
     public function updateRemesa(Request $request, $idRemesa) 
     {
@@ -91,7 +100,7 @@ class TarifaController extends Controller
     }
 
     /**
-     * AQUÍ NO ES NECESARIO: Es solo una operación única
+     * Actualiza el costo de reserva de un área recreativa.
      */
     public function updateArea(Request $request, $idAreaRecreativa) 
     {
@@ -110,7 +119,7 @@ class TarifaController extends Controller
     }
 
     /**
-     * En updateQR: Un try-catch es ideal para proteger la subida de archivos
+     * Actualiza la imagen del QR en la tarifa activa (estado = 1).
      */
     public function updateQR(Request $request)
     {
@@ -118,28 +127,29 @@ class TarifaController extends Controller
             'qr_pago' => ['required', 'image', 'mimes:jpg,png,jpeg', 'max:2048']
         ]);
 
-        $configuracionTarifaActiva = DB::table('configuracion_tarifas')->where('estado', true)->first();
+        // Buscamos la tarifa activa actualmente
+        $tarifaActiva = ConfiguracionTarifa::where('estado', 1)->first();
 
-        if (!$configuracionTarifaActiva) {
-            return back()->with('error', 'No hay una configuración activa. Primero guarde las tarifas globales.');
+        if (!$tarifaActiva) {
+            return back()->with('error', 'No hay una tarifa activa en el sistema. Guarde primero las tarifas globales.');
         }
 
         try {
             if ($request->hasFile('qr_pago')) {
-                // Eliminar el archivo viejo si existe
-                if (!empty($configuracionTarifaActiva->qr_pago)) {
-                    Storage::disk('public')->delete($configuracionTarifaActiva->qr_pago);
+                // Si la tarifa activa tenía una foto real previa, borrarla del disco
+                if (!empty($tarifaActiva->qr_pago) && $tarifaActiva->qr_pago !== 'sin_qr') {
+                    Storage::disk('public')->delete($tarifaActiva->qr_pago);
                 }
 
-                // Guardar el nuevo archivo
+                // Guardar la nueva imagen en public/qrs
                 $rutaNuevaImagenQR = $request->file('qr_pago')->store('qrs', 'public');
 
-                // Actualizar BD
-                DB::table('configuracion_tarifas')
-                    ->where('id_config', $configuracionTarifaActiva->id_config)
-                    ->update(['qr_pago' => $rutaNuevaImagenQR]);
+                // Actualizar la fila activa con la ruta real
+                $tarifaActiva->update([
+                    'qr_pago' => $rutaNuevaImagenQR
+                ]);
 
-                return back()->with('success', '¡Código QR oficial actualizado con éxito!');
+                return back()->with('success', '¡Código QR oficial actualizado en la tarifa actual!');
             }
         } catch (\Exception $e) {
             return back()->with('error', 'Ocurrió un error al procesar el archivo: ' . $e->getMessage());
