@@ -24,22 +24,16 @@ class LecturaController extends Controller
         $cobrosAgua = $queryAgua->orderBy('anio', 'desc')->orderBy('mes', 'desc')->get();
 
         // =========================================================================
-        // NUEVO: Sumar las reservas ACEPTADAS al cobro de agua de cada vivienda
+        // CORREGIDO: Sumar reservas vinculadas a ESTA CASA ESPECÍFICA (id_vivienda)
         // =========================================================================
         foreach ($cobrosAgua as $a) {
-            $propietarioId = $a->vivienda->id_propietario ?? null;
-            $monto_reservas = 0;
+            $monto_reservas = DB::table('reservas')
+                ->where('id_vivienda', $a->id_vivienda) // <-- FILTRO POR CASA ESPECÍFICA
+                ->whereMonth('fecha_reserva', $a->mes)
+                ->whereYear('fecha_reserva', $a->anio)
+                ->where('estado_reserva', 'Aceptado')
+                ->sum('costo_pactado') ?? 0;
 
-            if ($propietarioId) {
-                $monto_reservas = DB::table('reservas')
-                    ->where('id_usuario', $propietarioId)
-                    ->whereMonth('fecha_reserva', $a->mes)
-                    ->whereYear('fecha_reserva', $a->anio)
-                    ->where('estado_reserva', 'Aceptado') // Solo las reservas aprobadas por el admin
-                    ->sum('costo_pactado') ?? 0;
-            }
-
-            // Atributos dinámicos para la vista
             $a->total_real = $a->total_pagar + $monto_reservas;
             $a->monto_reservas = $monto_reservas;
         }
@@ -48,7 +42,6 @@ class LecturaController extends Controller
         if($id_vivienda) { $queryMante->where('id_vivienda', $id_vivienda); }
         $cobrosMante = $queryMante->orderBy('anio', 'desc')->orderBy('mes', 'desc')->get();
 
-        // --- CONSULTA REMESAS CORREGIDA ---
         $queryRemesas = CobroRemesa::with(['vivienda.propietario']);
         if($id_vivienda) { $queryRemesas->where('id_vivienda', $id_vivienda); }
 
@@ -76,42 +69,42 @@ class LecturaController extends Controller
     public function showRecibo($id_cobro_agua)
     {
         $cobroAgua = CobroAgua::with(['vivienda.propietario', 'lectura'])->findOrFail($id_cobro_agua);
-        $vivienda    = $cobroAgua->vivienda;
+        $vivienda  = $cobroAgua->vivienda;
 
         $cobroMante = CobroMantenimiento::where('id_vivienda', $vivienda->id_vivienda)
             ->where('mes', $cobroAgua->mes)
             ->where('anio', $cobroAgua->anio)
             ->first();
 
-        // Solo sumar reservas aceptadas
+        // Reservas de esta vivienda específica
         $monto_reservas = DB::table('reservas')
-            ->where('id_usuario', $vivienda->id_propietario)
+            ->where('id_vivienda', $vivienda->id_vivienda) // <-- FILTRO POR CASA ESPECÍFICA
             ->whereMonth('fecha_reserva', $cobroAgua->mes)
             ->whereYear('fecha_reserva', $cobroAgua->anio)
-            ->where('estado_reserva', 'Aceptado') // <-- CORREGIDO
+            ->where('estado_reserva', 'Aceptado')
             ->sum('costo_pactado') ?? 0;
 
         return view('admin.lecturas.recibo', compact('cobroAgua', 'cobroMante'))->with(['monto_wally' => $monto_reservas]);
     }
 
-    // =========================================================
-    // MÉTODOS DE DESCARGA PDF
-    // =========================================================
-
-    public function imprimirAgua($id)
+public function imprimirAgua($id)
     {
         $cobro = CobroAgua::with(['vivienda.propietario', 'lectura'])->findOrFail($id);
         
-        // Solo sumar reservas aceptadas
-        $monto_reservas = DB::table('reservas')
-            ->where('id_usuario', $cobro->vivienda->id_propietario)
+        // CORREGIDO: Busca las reservas de esta casa y unifica el nombre $montoReservas
+        $montoReservas = DB::table('reservas')
+            ->where('id_vivienda', $cobro->id_vivienda)
             ->whereMonth('fecha_reserva', $cobro->mes)
             ->whereYear('fecha_reserva', $cobro->anio)
-            ->where('estado_reserva', 'Aceptado') // <-- CORREGIDO
+            ->where('estado_reserva', 'Aceptado')
             ->sum('costo_pactado') ?? 0;
 
-        return Pdf::loadView('admin.lecturas.recibo_agua', compact('cobro', 'monto_reservas'))
-            ->setPaper('letter')->download("Recibo_Agua_Casa_{$cobro->vivienda->nro_casa}.pdf");
+        // Pasamos tanto 'montoReservas' como 'monto_reservas' para evitar cualquier error en el Blade
+        return Pdf::loadView('admin.lecturas.recibo_agua', [
+            'cobro'          => $cobro,
+            'montoReservas'  => $montoReservas,
+            'monto_reservas' => $montoReservas
+        ])->setPaper('letter')->download("Recibo_Agua_Casa_{$cobro->vivienda->nro_casa}.pdf");
     }
 
     public function imprimirMantenimiento($id)

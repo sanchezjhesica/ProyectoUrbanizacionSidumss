@@ -14,17 +14,20 @@ class ReservaAdminController extends Controller
         $mes = $request->get('mes');
         $anio = $request->get('anio', date('Y'));
 
+        // =========================================================================
+        // CORREGIDO: Cruce por reservas.id_vivienda para traer SOLO la casa elegida
+        // =========================================================================
         $query = DB::table('reservas')
             ->join('usuarios', 'reservas.id_usuario', '=', 'usuarios.id_usuario')
             ->join('areas_recreativas', 'reservas.id_area', '=', 'areas_recreativas.id_area')
-            ->leftJoin('viviendas', 'usuarios.id_usuario', '=', 'viviendas.id_propietario')
+            ->leftJoin('viviendas', 'reservas.id_vivienda', '=', 'viviendas.id_vivienda') // <-- CORREGIDO AQUÍ
             ->select(
                 'reservas.*',
                 'usuarios.nombre',
                 'usuarios.apellido_paterno',
                 'usuarios.ci',
                 'usuarios.telefono',
-                'viviendas.nro_casa',
+                'viviendas.nro_casa', // Trae únicamente la casa de la reserva
                 'areas_recreativas.nombre_area'
             );
 
@@ -56,16 +59,19 @@ class ReservaAdminController extends Controller
     }
 
     /**
-     * DESCARGAR REPORTE ANUAL EN PDF
+     * DESCARGAR REPORTE ANUAL EN PDF (CORREGIDO SIN DUPLICADOS)
      */
     public function descargarAnual(Request $request)
     {
         $anio = $request->get('anio', date('Y'));
 
+        // =========================================================================
+        // CORREGIDO EN EL PDF: Cruce por reservas.id_vivienda
+        // =========================================================================
         $reservas = DB::table('reservas')
             ->join('usuarios', 'reservas.id_usuario', '=', 'usuarios.id_usuario')
             ->join('areas_recreativas', 'reservas.id_area', '=', 'areas_recreativas.id_area')
-            ->leftJoin('viviendas', 'usuarios.id_usuario', '=', 'viviendas.id_propietario')
+            ->leftJoin('viviendas', 'reservas.id_vivienda', '=', 'viviendas.id_vivienda') // <-- CORREGIDO AQUÍ
             ->whereYear('reservas.fecha_reserva', $anio)
             ->select(
                 'reservas.*',

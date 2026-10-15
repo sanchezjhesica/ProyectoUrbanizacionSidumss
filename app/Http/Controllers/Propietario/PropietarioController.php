@@ -26,31 +26,31 @@ class PropietarioController extends Controller
         $id_usuario = Auth::id();
         $misViviendasIds = Vivienda::where('id_propietario', $id_usuario)->pluck('id_vivienda');
 
-        // 1. Avisos de Agua
-        $avisosAgua = CobroAgua::whereIn('id_vivienda', $misViviendasIds)
-            ->orderBy('anio', 'desc')->orderBy('mes', 'desc')->get();
+        $avisosAgua = CobroAgua::with('vivienda')
+            ->whereIn('id_vivienda', $misViviendasIds)
+            ->orderBy('anio', 'desc')
+            ->orderBy('mes', 'desc')
+            ->get();
 
-        // =========================================================================
-        // NUEVO: Sumar las reservas ACEPTADAS de cada mes al total de Agua
-        // =========================================================================
         foreach ($avisosAgua as $aviso) {
             $montoReservas = DB::table('reservas')
-                ->where('id_usuario', $id_usuario)
+                ->where('id_vivienda', $aviso->id_vivienda)
                 ->whereMonth('fecha_reserva', $aviso->mes)
                 ->whereYear('fecha_reserva', $aviso->anio)
-                ->where('estado_reserva', 'Aceptado') // Solo las aceptadas por el admin
+                ->where('estado_reserva', 'Aceptado')
                 ->sum('costo_pactado');
 
-            // Atributo temporal 'total_real' que suma: Agua + Alcantarillado + Mora + Reservas
             $aviso->total_real = $aviso->total_pagar + $montoReservas;
         }
             
-        // 2. Avisos de Mantenimiento
-        $avisosMantenimiento = CobroMantenimiento::whereIn('id_vivienda', $misViviendasIds)
-            ->orderBy('anio', 'desc')->orderBy('mes', 'desc')->get();
+        $avisosMantenimiento = CobroMantenimiento::with('vivienda')
+            ->whereIn('id_vivienda', $misViviendasIds)
+            ->orderBy('anio', 'desc')
+            ->orderBy('mes', 'desc')
+            ->get();
             
-        // 3. Avisos de Remesas (Expensas)
-        $avisosRemesas = CobroRemesa::whereIn('id_vivienda', $misViviendasIds)
+        $avisosRemesas = CobroRemesa::with('vivienda')
+            ->whereIn('id_vivienda', $misViviendasIds)
             ->select(
                 'id_vivienda', 
                 'mes', 
@@ -59,7 +59,8 @@ class PropietarioController extends Controller
                 'total_remesa as total_mes',
                 'id_cobro_remesa as id_referencia' 
             )
-            ->orderBy('anio', 'desc')->orderBy('mes', 'desc')
+            ->orderBy('anio', 'desc')
+            ->orderBy('mes', 'desc')
             ->get();
 
         $config = DB::table('configuracion_tarifas')->where('estado', true)->first();
@@ -67,46 +68,46 @@ class PropietarioController extends Controller
         return view('propietario.avisos', compact('avisosAgua', 'avisosMantenimiento', 'avisosRemesas', 'config'));
     }
 
-   public function misReservas() {
+    public function misReservas() {
         $id_usuario = Auth::id();
+
+        $misViviendas = Vivienda::where('id_propietario', $id_usuario)
+            ->orderByRaw('CAST(nro_casa AS UNSIGNED) ASC')
+            ->get();
 
         $reservas = DB::table('reservas')
             ->join('areas_recreativas', 'reservas.id_area', '=', 'areas_recreativas.id_area')
+            ->leftJoin('viviendas', 'reservas.id_vivienda', '=', 'viviendas.id_vivienda')
             ->where('reservas.id_usuario', $id_usuario)
-            // ==========================================================
-            // FILTRO: Solo reservas del mes y año actual
-            // ==========================================================
             ->whereMonth('reservas.fecha_reserva', now()->month)
             ->whereYear('reservas.fecha_reserva', now()->year)
-            ->select('reservas.*', 'areas_recreativas.nombre_area') 
+            ->select('reservas.*', 'areas_recreativas.nombre_area', 'viviendas.nro_casa') 
             ->orderBy('fecha_reserva', 'desc')
             ->get();
 
         $areas = DB::table('areas_recreativas')->get();
-        return view('propietario.reservas', compact('reservas', 'areas'));
+        return view('propietario.reservas', compact('reservas', 'areas', 'misViviendas'));
     }
+
     public function guardarReserva(Request $request) 
     {
-        // 1. Validación de campos
         $request->validate([
+            'id_vivienda' => 'required|exists:viviendas,id_vivienda',
             'id_area'     => 'required|exists:areas_recreativas,id_area',
             'fecha'       => 'required|date|after_or_equal:today',
             'hora_inicio' => 'nullable',
             'hora_fin'    => 'nullable',
         ], [
+            'id_vivienda.required' => 'Debe seleccionar a qué vivienda se cargará el cobro de la reserva.',
             'fecha.after_or_equal' => 'No puede reservar en fechas pasadas.',
         ]);
 
         $id_usuario = Auth::id();
         $area = DB::table('areas_recreativas')->where('id_area', $request->id_area)->first();
 
-        // =========================================================================
-        // REGLA CLAVE: Si no enviaron hora (ej. Salón), rellenar TODO EL DÍA automáticamente
-        // =========================================================================
         $horaInicio = $request->filled('hora_inicio') ? $request->hora_inicio : '08:00:00';
         $horaFin    = $request->filled('hora_fin')    ? $request->hora_fin    : '23:59:00';
 
-        // 2. VALIDAR QUE NO HAYA CRUCE DE HORARIOS
         $consultaCruce = DB::table('reservas')
             ->where('id_area', $request->id_area)
             ->where('fecha_reserva', $request->fecha)
@@ -126,13 +127,13 @@ class PropietarioController extends Controller
             ]);
         }
 
-        // 3. GUARDAR SIN NULL (Con las horas de todo el día si fue salón)
         DB::table('reservas')->insert([
             'id_usuario'     => $id_usuario,
+            'id_vivienda'    => $request->id_vivienda,
             'id_area'        => $request->id_area,
             'fecha_reserva'  => $request->fecha,
-            'hora_inicio'    => $horaInicio, // <-- Guarda 08:00:00
-            'hora_fin'       => $horaFin,    // <-- Guarda 23:59:00
+            'hora_inicio'    => $horaInicio,
+            'hora_fin'       => $horaFin,
             'costo_pactado'  => $area->costo_reserva,
             'estado_pago'    => 'Pendiente',
             'estado_reserva' => 'Pendiente'
@@ -141,19 +142,15 @@ class PropietarioController extends Controller
         return redirect()->back()->with('success', 'Solicitud de reserva enviada con éxito. Pendiente de aprobación.');
     }
 
-    // --- MÉTODOS PARA DESCARGAR PDF ---
-
     public function descargarAvisoAgua($id) {
         $cobro = CobroAgua::with(['vivienda.propietario', 'lectura'])->findOrFail($id);
         
-        // CORRECCIÓN CLAVE: Solo sumar reservas que fueron ACEPTADAS por el admin
         $montoReservas = DB::table('reservas')
-            ->where('id_usuario', $cobro->vivienda->id_propietario)
+            ->where('id_vivienda', $cobro->id_vivienda)
             ->whereMonth('fecha_reserva', $cobro->mes)
             ->whereYear('fecha_reserva', $cobro->anio)
-            ->where('estado_pago', 'Pendiente')
-            ->where('estado_reserva', 'Aceptado') // <-- CAMBIO CLAVE (No cobra denegadas ni pendientes)
-            ->sum('costo_pactado');
+            ->where('estado_reserva', 'Aceptado')
+            ->sum('costo_pactado') ?? 0;
 
         $pdf = Pdf::loadView('propietario.recibo_agua', compact('cobro', 'montoReservas'));
         $pdf->setPaper('letter', 'portrait');
@@ -201,24 +198,37 @@ class PropietarioController extends Controller
         return view('propietario.seguridad');
     }
 
-    public function updatePassword(Request $request) {
+    public function updatePassword(Request $request) 
+    {
+        // 1. Validaciones avanzadas y estrictas
         $request->validate([
-            'current_password' => 'required',
-            'new_password' => 'required|min:6|confirmed',
+            'current_password' => ['required'],
+            'new_password'     => [
+                'required', 
+                'string', 
+                'min:8', 
+                'confirmed', 
+                'different:current_password',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#.\-_]).+$/'
+            ],
         ], [
-            'new_password.confirmed' => 'La confirmación de la nueva contraseña no coincide.',
-            'new_password.min' => 'La nueva contraseña debe tener al menos 6 caracteres.'
+            'current_password.required' => 'Debe ingresar su contraseña actual.',
+            'new_password.required'     => 'Debe ingresar la nueva contraseña.',
+            'new_password.min'          => 'La nueva contraseña debe tener al menos 8 caracteres.',
+            'new_password.confirmed'    => 'La confirmación de la nueva contraseña no coincide.',
+            'new_password.different'    => 'La nueva contraseña debe ser diferente a la contraseña actual.',
+            'new_password.regex'        => 'La nueva contraseña debe tener al menos una letra mayúscula, una minúscula, un número y un carácter especial (ej: @, $, !, %, *, ?, &, #, .).',
         ]);
 
         $user = Auth::user();
 
         if (!Hash::check($request->current_password, $user->password)) {
-            return back()->withErrors(['current_password' => 'La contraseña actual no es correcta.']);
+            return back()->withErrors(['current_password' => 'La contraseña actual ingresada es incorrecta.']);
         }
 
         $user->password = Hash::make($request->new_password);
         $user->save();
 
-        return back()->with('success', '¡Contraseña actualizada correctamente!');
+        return back()->with('success', '¡Su contraseña ha sido actualizada con éxito!');
     }
 }

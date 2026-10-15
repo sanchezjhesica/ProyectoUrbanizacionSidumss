@@ -49,7 +49,7 @@
                     <table class="table table-hover align-middle mb-0">
                         <thead class="bg-light-soft text-muted">
                             <tr>
-                                <th class="ps-4 py-3 uppercase-tracking">Periodo</th>
+                                <th class="ps-4 py-3 uppercase-tracking">Periodo / Inmueble</th>
                                 <th class="py-3 uppercase-tracking">Total</th>
                                 <th class="py-3 text-center uppercase-tracking">Estado</th>
                                 <th class="py-3 text-center uppercase-tracking">Acciones</th>
@@ -59,7 +59,13 @@
                             @forelse($avisosAgua as $a)
                             <tr>
                                 <td class="ps-4">
-                                    <div class="fw-bold text-dark text-capitalize">{{ \Carbon\Carbon::create()->month($a->mes)->translatedFormat('F') }} {{ $a->anio }}</div>
+                                    <div class="fw-bold text-dark text-capitalize">
+                                        {{ \Carbon\Carbon::create()->month($a->mes)->translatedFormat('F') }} {{ $a->anio }}
+                                    </div>
+                                    <!-- NÚMERO DE CASA -->
+                                    <span class="badge bg-blue-soft text-stellar-blue font-monospace mt-1" style="font-size: 0.72rem;">
+                                        <i class="fas fa-home me-1"></i> Casa #{{ $a->vivienda->nro_casa ?? 'S/N' }}
+                                    </span>
                                 </td>
                                 <td>
                                     <span class="fw-bold text-stellar-blue fs-6">Bs. {{ number_format($a->total_real ?? $a->total_pagar, 2) }}</span>
@@ -71,7 +77,6 @@
                                 </td>
                                 <td class="text-center pe-3">
                                     <div class="d-flex justify-content-center gap-2">
-                                        {{-- PDF SOLO SI ESTÁ PAGADO --}}
                                         @if($a->estado_pago == 'Pagado')
                                             <a href="{{ route('propietario.descargar.agua', $a->id_cobro_agua) }}" class="btn btn-view-stellar" title="Descargar Recibo Oficial">
                                                 <i class="fas fa-file-pdf me-1"></i> PDF
@@ -99,7 +104,7 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead class="bg-light-soft text-muted">
                         <tr>
-                            <th class="ps-4 py-3 uppercase-tracking">Periodo</th>
+                            <th class="ps-4 py-3 uppercase-tracking">Periodo / Inmueble</th>
                             <th class="py-3 uppercase-tracking">Monto</th>
                             <th class="py-3 text-center uppercase-tracking">Estado</th>
                             <th class="py-3 text-center uppercase-tracking">Acciones</th>
@@ -108,7 +113,15 @@
                     <tbody>
                         @forelse($avisosMantenimiento as $m)
                         <tr>
-                            <td class="ps-4"><b class="text-capitalize">{{ \Carbon\Carbon::create()->month($m->mes)->translatedFormat('F') }} {{ $m->anio }}</b></td>
+                            <td class="ps-4">
+                                <div class="fw-bold text-dark text-capitalize">
+                                    {{ \Carbon\Carbon::create()->month($m->mes)->translatedFormat('F') }} {{ $m->anio }}
+                                </div>
+                                <!-- NÚMERO DE CASA -->
+                                <span class="badge bg-blue-soft text-stellar-blue font-monospace mt-1" style="font-size: 0.72rem;">
+                                    <i class="fas fa-home me-1"></i> Casa #{{ $m->vivienda->nro_casa ?? 'S/N' }}
+                                </span>
+                            </td>
                             <td><span class="fw-bold text-stellar-blue">Bs. {{ number_format($m->monto_fijo, 2) }}</span></td>
                             <td class="text-center">
                                 <span class="badge-stellar {{ $m->estado_pago == 'Pagado' ? 'bg-success-soft text-success' : 'bg-danger-soft text-danger' }}">
@@ -117,7 +130,6 @@
                             </td>
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
-                                    {{-- PDF SOLO SI ESTÁ PAGADO --}}
                                     @if($m->estado_pago == 'Pagado')
                                         <a href="{{ route('propietario.descargar.mantenimiento', $m->id_cobro_mantenimiento) }}" class="btn btn-view-stellar" title="Descargar Recibo Oficial">
                                             <i class="fas fa-file-pdf me-1"></i> PDF
@@ -144,7 +156,7 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead class="bg-light-soft text-muted">
                         <tr>
-                            <th class="ps-4 py-3 uppercase-tracking">Periodo</th>
+                            <th class="ps-4 py-3 uppercase-tracking">Periodo / Inmueble</th>
                             <th class="py-3 uppercase-tracking">Monto Total</th>
                             <th class="py-3 text-center uppercase-tracking">Estado</th>
                             <th class="py-3 text-center uppercase-tracking">Acciones</th>
@@ -153,7 +165,15 @@
                     <tbody>
                         @forelse($avisosRemesas as $r)
                         <tr>
-                            <td class="ps-4"><b>Planilla {{ \Carbon\Carbon::create()->month($r->mes)->translatedFormat('F') }} {{ $r->anio }}</b></td>
+                            <td class="ps-4">
+                                <div class="fw-bold text-dark">
+                                    Planilla {{ \Carbon\Carbon::create()->month($r->mes)->translatedFormat('F') }} {{ $r->anio }}
+                                </div>
+                                <!-- NÚMERO DE CASA -->
+                                <span class="badge bg-blue-soft text-stellar-blue font-monospace mt-1" style="font-size: 0.72rem;">
+                                    <i class="fas fa-home me-1"></i> Casa #{{ $r->vivienda->nro_casa ?? 'S/N' }}
+                                </span>
+                            </td>
                             <td><span class="fw-bold text-stellar-blue">Bs. {{ number_format($r->total_mes, 2) }}</span></td>
                             <td class="text-center">
                                 <span class="badge-stellar {{ $r->estado_pago == 'Pagado' ? 'bg-success-soft text-success' : 'bg-danger-soft text-danger' }}">
@@ -162,7 +182,6 @@
                             </td>
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
-                                    {{-- PDF SOLO SI ESTÁ PAGADO --}}
                                     @if($r->estado_pago == 'Pagado')
                                         <a href="{{ route('propietario.descargar.remesas', $r->id_referencia) }}" class="btn btn-view-stellar" title="Descargar Recibo Oficial">
                                             <i class="fas fa-file-pdf me-1"></i> PDF
@@ -243,6 +262,7 @@
 
     .text-stellar-blue { color: var(--stellar-blue); }
     .bg-light-soft { background-color: rgba(248, 249, 250, 0.5); }
+    .bg-blue-soft { background-color: rgba(14, 92, 173, 0.08); }
     .bg-success-soft { background-color: rgba(40, 167, 69, 0.1); }
     .bg-danger-soft { background-color: rgba(220, 53, 69, 0.1); }
     
