@@ -1,0 +1,69 @@
+/* VARIABLES UNIFICADAS */
+    :root {
+        --stellar-blue: #0e5cad;
+        --stellar-button: linear-gradient(45deg, #22349e 0%, #8183e6 100%);
+        --stellar-input-focus: rgba(14, 92, 173, 0.1);
+    }
+
+    .text-stellar-blue { color: var(--stellar-blue); }
+
+    .form-label-stellar {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+        color: #777;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    /* ESTILO DE INPUTS MEJORADO */
+    .form-stellar {
+        border: 1px solid #e0e0e0c4;
+        border-radius: 10px;
+        padding: 12px 15px;
+        background-color: #fdfdfdbe;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+    }
+    
+    .form-stellar:focus {
+        border-color: var(--stellar-blue);
+        background-color: #ffffffad;
+        box-shadow: 0 0 0 0.25rem var(--stellar-input-focus);
+    }
+    
+    .input-group-text {
+        border-radius: 10px 0 0 10px !important;
+        border: 1px solid #e0e0e0cc;
+        color: #aaa;
+    }
+
+    /* BOTÓN STELLAR AZUL */
+    .btn-stellar-submit {
+        background: var(--stellar-button);
+        color: white !important;
+        border-radius: 50px;
+        font-weight: 700;
+        border: none;
+        padding: 14px 35px;
+        transition: 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.85rem;
+    }
+    
+    .btn-stellar-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(34, 52, 158, 0.3);
+    }
+
+    .rounded-4 { border-radius: 1.25rem !important; }
+
+    /* AJUSTES PARA MÓVIL */
+    @media (max-width: 767.98px) {
+        .card-body { padding: 1.5rem !important; }
+        .btn-stellar-submit { width: 100%; }
+        .btn-light { width: 100%; border: 1px solid #ddddddc0; }
+        h2 { font-size: 1.5rem; }
+    }

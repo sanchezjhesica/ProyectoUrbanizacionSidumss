@@ -1,14 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <style>
-        body { font-family: sans-serif; font-size: 13px; }
-        .header { text-align: center; border-bottom: 2px solid #0e5cad; margin-bottom: 30px; }
-        table { width: 100%; border-collapse: collapse; }
-        th { background: #0e5cad; color: white; padding: 10px; text-align: left; }
-        td { border: 1px solid #ddd; padding: 10px; }
-        .total { text-align: right; font-size: 20px; color: #0e5cad; font-weight: bold; margin-top: 30px; }
-    </style>
+    @include('layouts.pdf_styles', ['stylesheet' => 'views/propietario/recibo_mantenimiento.css'])
 </head>
 <body>
     <div class="header">
@@ -19,10 +12,10 @@
     <p><b>Casa:</b> {{ $cobro->vivienda->nro_casa }} | <b>Periodo:</b> {{ $cobro->mes }}/{{ $cobro->anio }}</p>
 
     <table>
-        <tr><th>Descripción del Cargo</th><th style="text-align: right;">Monto</th></tr>
+        <tr><th>Descripción del Cargo</th><th  class="view-style-13cbe03b9a">Monto</th></tr>
         <tr>
             <td>Cuota mensual de mantenimiento (Seguridad, limpieza, alumbrado)</td>
-            <td style="text-align: right;">Bs. {{ number_format($cobro->monto_fijo, 2) }}</td>
+            <td  class="view-style-13cbe03b9a">Bs. {{ number_format($cobro->monto_fijo, 2) }}</td>
         </tr>
     </table>
 

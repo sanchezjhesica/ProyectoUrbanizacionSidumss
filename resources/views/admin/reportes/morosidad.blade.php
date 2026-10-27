@@ -1,5 +1,9 @@
 @extends('layouts.admin')
 
+@push('styles')
+    @vite('resources/css/views/admin/reportes/morosidad.css')
+@endpush
+
 @section('content')
 <div class="morosidad-stellar">
     <!-- 1. CABECERA RESPONSIVA -->
@@ -44,7 +48,7 @@
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-hover mb-0 align-middle">
-                            <thead class="bg-light text-muted" style="font-size: 0.7rem;">
+                            <thead class="bg-light text-muted view-style-cb8a8ef79f" >
                                 <tr>
                                     <th class="ps-4">CASA / DUEÑO</th>
                                     <th class="d-none d-md-table-cell">CONCEPTO</th>
@@ -82,41 +86,5 @@
     @endforeach
 </div>
 
-<style>
-    :root { 
-        --stellar-blue: #0e5cad; 
-        --stellar-danger: #e74c3c; 
-    }
 
-    .text-danger-stellar { color: var(--stellar-danger); }
-    .text-stellar-blue { color: var(--stellar-blue); }
-    .bg-danger-soft { background: rgba(231, 76, 60, 0.1); }
-    .bg-blue-soft { background: rgba(14, 92, 173, 0.1); }
-    .letter-spacing-1 { letter-spacing: 1px; }
-
-    .btn-stellar-danger { 
-        background: var(--stellar-danger); 
-        color: white !important; 
-        border-radius: 50px; 
-        font-weight: 700; 
-        border: none; 
-        transition: 0.3s; 
-    }
-
-    /* Ajustes específicos para móviles */
-    @media (max-width: 767.98px) {
-        .morosidad-stellar h2 { font-size: 1.5rem; }
-        .card-header h6 { font-size: 0.9rem; }
-        .table td { padding: 12px 5px !important; }
-        .badge { font-size: 0.7rem; }
-        .gestion-divider { text-align: center; }
-        
-        /* Ajuste para que el número de casa no sea tan grande */
-        .bg-blue-soft { padding: 4px 8px; font-size: 0.7rem; }
-    }
-
-    .rounded-4 { border-radius: 1.25rem !important; }
-    .gestion-divider { border-bottom: 2px dashed #ddd; line-height: 0.1em; margin: 10px 0 20px; text-align: left; }
-    .gestion-divider span { background:#f4f7f6; padding:0 10px; }
-</style>
 @endsection

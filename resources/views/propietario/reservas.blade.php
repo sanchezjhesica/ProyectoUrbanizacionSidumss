@@ -1,5 +1,9 @@
 @extends('layouts.propietario')
 
+@push('styles')
+    @vite('resources/css/views/propietario/reservas.css')
+@endpush
+
 @section('content')
 <div class="reservas-stellar">
     <!-- 1. CABECERA DE SECCIÓN -->
@@ -10,7 +14,7 @@
             </h2>
             <p class="text-muted small mb-0">Solicite el uso del Salón de Eventos o canchas deportivas.</p>
         </div>
-        <div class="badge bg-blue-soft text-stellar-blue py-2 px-3 rounded-pill fw-semibold" style="font-size: 0.78rem;">
+        <div class="badge bg-blue-soft text-stellar-blue py-2 px-3 rounded-pill fw-semibold view-style-a768c15a46" >
             <i class="fas fa-info-circle me-1"></i> Costo cargado al aviso de Agua tras aprobación
         </div>
     </div>
@@ -58,7 +62,7 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <small class="text-muted d-block mt-1" style="font-size: 0.7rem;">
+                                <small class="text-muted d-block mt-1 view-style-cb8a8ef79f" >
                                     El costo se incluirá en el aviso de agua de la casa seleccionada.
                                 </small>
                             </div>
@@ -104,7 +108,7 @@
                                 <label class="form-label-stellar">Hora Fin</label>
                                 <input type="time" name="hora_fin" id="hora_fin" class="form-control form-stellar" value="{{ old('hora_fin') }}">
                             </div>
-                            <small class="text-muted mt-1 d-block" id="texto-ayuda-horario" style="font-size: 0.72rem;">
+                            <small class="text-muted mt-1 d-block view-style-dbc8d1cddf" id="texto-ayuda-horario" >
                                 <i class="fas fa-info-circle me-1"></i> Obligatorio para Wally / Polifuncional.
                             </small>
                         </div>
@@ -128,10 +132,10 @@
                         <table class="table table-hover align-middle mb-0 w-100">
                             <thead class="bg-light border-bottom">
                                 <tr>
-                                    <th class="ps-3 py-3 uppercase-tracking" style="min-width: 125px;">Fecha y Horario</th>
+                                    <th class="ps-3 py-3 uppercase-tracking view-style-8d4b66fe39" >Fecha y Horario</th>
                                     <th class="py-3 uppercase-tracking">Espacio</th>
-                                    <th class="py-3 text-center uppercase-tracking" style="width: 85px;">Costo</th>
-                                    <th class="pe-3 py-3 text-center uppercase-tracking" style="width: 125px;">Estado y Pago</th>
+                                    <th class="py-3 text-center uppercase-tracking view-style-12c738eed8" >Costo</th>
+                                    <th class="pe-3 py-3 text-center uppercase-tracking view-style-95757238f9" >Estado y Pago</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -139,16 +143,16 @@
                                 <tr>
                                     <!-- 1. Fecha y Horario de la Reserva -->
                                     <td class="ps-3 text-nowrap">
-                                        <div class="fw-bold text-dark" style="font-size: 0.85rem;">
+                                        <div class="fw-bold text-dark view-style-933a8ef29e" >
                                             <i class="far fa-calendar-alt me-1 text-stellar-blue"></i>
                                             {{ \Carbon\Carbon::parse($r->fecha_reserva)->format('d/m/Y') }}
                                         </div>
                                         @if(!empty($r->hora_inicio) && $r->hora_inicio != '08:00:00')
-                                            <div class="badge bg-light text-stellar-blue border fw-bold mt-1" style="font-size: 0.7rem;">
+                                            <div class="badge bg-light text-stellar-blue border fw-bold mt-1 view-style-cb8a8ef79f" >
                                                 <i class="far fa-clock me-1 text-info"></i>{{ substr($r->hora_inicio, 0, 5) }} a {{ substr($r->hora_fin, 0, 5) }}
                                             </div>
                                         @else
-                                            <small class="text-muted d-block" style="font-size: 0.7rem;">Día completo</small>
+                                            <small class="text-muted d-block view-style-cb8a8ef79f" >Día completo</small>
                                         @endif
                                     </td>
 
@@ -156,12 +160,12 @@
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <div class="icon-circle me-2 flex-shrink-0">
-                                                <i class="fas fa-star text-stellar-blue" style="font-size: 0.75rem;"></i>
+                                                <i class="fas fa-star text-stellar-blue view-style-a2b44b158b" ></i>
                                             </div>
                                             <div>
-                                                <span class="fw-semibold text-dark lh-sm d-block" style="font-size: 0.85rem;">{{ $r->nombre_area }}</span>
+                                                <span class="fw-semibold text-dark lh-sm d-block view-style-933a8ef29e" >{{ $r->nombre_area }}</span>
                                                 @if(!empty($r->nro_casa))
-                                                    <span class="badge bg-blue-soft text-stellar-blue font-monospace" style="font-size: 0.65rem;">
+                                                    <span class="badge bg-blue-soft text-stellar-blue font-monospace view-style-3b4cd38e7a" >
                                                         Casa #{{ $r->nro_casa }}
                                                     </span>
                                                 @endif
@@ -171,7 +175,7 @@
 
                                     <!-- 3. Costo -->
                                     <td class="text-center text-nowrap">
-                                        <span class="text-dark fw-bold" style="font-size: 0.85rem;">Bs. {{ number_format($r->costo_pactado, 2) }}</span>
+                                        <span class="text-dark fw-bold view-style-933a8ef29e" >Bs. {{ number_format($r->costo_pactado, 2) }}</span>
                                     </td>
                                     
                                     <!-- 4. Estado de Solicitud y Estado de Pago Juntos -->
@@ -193,8 +197,8 @@
 
                                         <!-- Insignia de Pago -->
                                         <div class="mt-1">
-                                            <span class="badge {{ $r->estado_pago == 'Pagado' ? 'bg-light text-success border border-success' : 'bg-light text-muted border' }}" style="font-size: 0.65rem;">
-                                                <i class="fas fa-circle me-1" style="font-size: 5px;"></i> Pago: {{ $r->estado_pago }}
+                                            <span class="badge {{ $r->estado_pago == 'Pagado' ? 'bg-light text-success border border-success' : 'bg-light text-muted border' }} view-style-3b4cd38e7a">
+                                                <i class="fas fa-circle me-1 view-style-289f7ab992"></i> Pago: {{ $r->estado_pago }}
                                             </span>
                                         </div>
                                     </td>
@@ -216,46 +220,7 @@
     </div>
 </div>
 
-<style>
-    :root {
-        --stellar-blue: #0e5cad;
-        --stellar-button: linear-gradient(45deg, #22349e 0%, #8183e6 100%);
-    }
 
-    .text-stellar-blue { color: var(--stellar-blue); }
-    .bg-blue-soft { background-color: rgba(14, 92, 173, 0.08); }
-    .bg-success-soft { background-color: rgba(40, 167, 69, 0.12); color: #28a745 !important; }
-    .bg-danger-soft { background-color: rgba(220, 53, 69, 0.12); color: #dc3545 !important; }
-    .bg-warning-soft { background-color: rgba(255, 193, 7, 0.18); color: #b7791f !important; }
-
-    .uppercase-tracking { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; color: #718096; }
-    .form-label-stellar { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; color: #777; margin-bottom: 6px; display: block; }
-    .form-stellar { border: 1px solid #e2e8f0; border-radius: 8px; padding: 9px 12px; font-size: 0.88rem; transition: 0.2s; }
-    .form-stellar:focus { border-color: var(--stellar-blue); box-shadow: 0 0 0 0.2rem rgba(14, 92, 173, 0.1); }
-
-    .btn-stellar-submit {
-        background: var(--stellar-button); color: white !important;
-        border-radius: 50px; font-weight: 600; font-size: 0.85rem; border: none;
-        transition: 0.2s; text-transform: uppercase; letter-spacing: 0.8px;
-    }
-    .btn-stellar-submit:hover { opacity: 0.95; transform: translateY(-1px); }
-
-    .alert-stellar { background: #e8f5e9; border-left: 4px solid #2e7d32; color: #2e7d32; }
-
-    .badge-stellar {
-        padding: 4px 8px; border-radius: 50px; font-size: 9.5px;
-        font-weight: 700; text-transform: uppercase; display: inline-flex;
-        align-items: center; white-space: nowrap;
-    }
-
-    .icon-circle {
-        width: 26px; height: 26px; background: rgba(14, 92, 173, 0.08);
-        border-radius: 50%; display: flex; align-items: center; justify-content: center;
-    }
-
-    .rounded-4 { border-radius: 1rem !important; }
-    .table-responsive { border: none; scrollbar-width: thin; }
-</style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {

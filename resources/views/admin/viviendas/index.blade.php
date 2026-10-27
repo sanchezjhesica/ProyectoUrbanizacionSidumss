@@ -1,5 +1,9 @@
 @extends('layouts.admin')
 
+@push('styles')
+    @vite('resources/css/views/admin/viviendas/index.css')
+@endpush
+
 @section('content')
 <div class="viviendas-stellar">
     <!-- 1. ENCABEZADO RESPONSIVO -->
@@ -56,7 +60,7 @@
                                     </div>
                                     <div>
                                         <span class="fw-bold text-dark d-block nro-casa-texto">Casa #{{ $v->nro_casa }}</span>
-                                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.6rem;">{{ $v->tipo_vivienda }}</small>
+                                        <small class="text-muted text-uppercase fw-bold view-style-1ed2f53daf" >{{ $v->tipo_vivienda }}</small>
                                         <div class="d-sm-none mt-1">
                                             <span class="badge-medidor-xs">{{ $v->nro_medidor }}</span>
                                         </div>
@@ -74,11 +78,11 @@
                                 @if($v->propietario)
                                     <div class="d-flex flex-column">
                                         <span class="fw-bold text-dark name-truncate">{{ $v->propietario->nombre }} {{ $v->propietario->apellido_paterno }}</span>
-                                        <small class="text-muted" style="font-size: 0.7rem;">CI: {{ $v->propietario->ci }}</small>
+                                        <small class="text-muted view-style-cb8a8ef79f" >CI: {{ $v->propietario->ci }}</small>
                                     </div>
                                 @else
                                     <span class="badge-stellar bg-danger-soft text-danger">
-                                        <i class="fas fa-user-slash me-1" style="font-size: 0.6rem;"></i> <span class="d-none d-md-inline">SIN PROPIETARIO</span><span class="d-md-none">S/N</span>
+                                        <i class="fas fa-user-slash me-1 view-style-1ed2f53daf" ></i> <span class="d-none d-md-inline">SIN PROPIETARIO</span><span class="d-md-none">S/N</span>
                                     </span>
                                 @endif
                             </td>
@@ -107,56 +111,7 @@
     </div>
 </div>
 
-<style>
-    :root {
-        --stellar-blue: #0e5cad;
-        --stellar-grad: linear-gradient(45deg, #79f1a4 15%, #0e5cad 85%);
-    }
 
-    .text-stellar-blue { color: var(--stellar-blue); }
-    .bg-blue-soft { background-color: rgba(14, 92, 173, 0.08); }
-    .bg-danger-soft { background-color: rgba(220, 53, 69, 0.1); }
-    
-    .uppercase-tracking { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; color: #888; }
-
-    /* Barra de búsqueda */
-    .form-stellar { border: 1px solid #e0e0e0; border-radius: 10px; padding: 12px; transition: 0.3s; }
-    .form-stellar:focus { border-color: var(--stellar-blue); box-shadow: 0 0 0 0.25rem rgba(14, 92, 173, 0.1); }
-
-    /* Badges y botones */
-    .badge-medidor {
-        background-color: #eef2f7; color: var(--stellar-blue); padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; border: 1px solid #d1d9e6;
-    }
-
-    .badge-medidor-xs {
-        background: #f1f5f9; color: #64748b; font-size: 0.65rem; font-weight: 800; padding: 2px 6px; border-radius: 4px; border: 1px solid #e2e8f0;
-    }
-
-    .property-icon-stellar {
-        width: 35px; height: 35px; background: var(--stellar-grad); color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;
-    }
-
-    .badge-stellar { padding: 4px 8px; border-radius: 50px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; white-space: nowrap; }
-
-    .btn-designar-responsive {
-        background-color: white; color: var(--stellar-blue); border: 1px solid var(--stellar-blue); padding: 6px 12px; border-radius: 50px; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; text-decoration: none; transition: 0.3s; display: inline-flex; align-items: center;
-    }
-    .btn-designar-responsive:hover { background-color: var(--stellar-blue); color: white; }
-
-    .name-truncate { max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-    @media (min-width: 768px) {
-        .name-truncate { max-width: none; }
-        .uppercase-tracking { font-size: 0.7rem; }
-    }
-
-    @media (max-width: 480px) {
-        .table td { padding: 12px 5px !important; }
-        .btn-designar-responsive { width: 32px; height: 32px; padding: 0; justify-content: center; }
-    }
-
-    .rounded-4 { border-radius: 1.25rem !important; }
-</style>
 
 <!-- SCRIPT DE FILTRADO INSTANTÁNEO -->
 <script>

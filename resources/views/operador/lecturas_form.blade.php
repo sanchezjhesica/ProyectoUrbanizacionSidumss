@@ -1,5 +1,9 @@
 @extends('layouts.operador')
 
+@push('styles')
+    @vite('resources/css/views/operador/lecturas_form.css')
+@endpush
+
 @section('content')
 <div class="operador-stellar">
     <!-- 1. ENCABEZADO -->
@@ -54,7 +58,7 @@
                                     <p class="mb-0 text-muted small">Medidor: <span id="info-medidor">---</span></p>
                                 </div>
                                 <div class="col-sm-4 text-sm-end mt-3 mt-sm-0">
-                                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.6rem;">Lectura Anterior</small>
+                                    <small class="text-muted d-block text-uppercase fw-bold view-style-1ed2f53daf" >Lectura Anterior</small>
                                     <h3 class="mb-0 fw-bold text-stellar-blue"><span id="valor-anterior">0</span> <small class="fw-normal fs-6">m³</small></h3>
                                 </div>
                             </div>
@@ -98,28 +102,7 @@
     </div>
 </div>
 
-<style>
-    :root {
-        --stellar-blue: #0e5cad;
-        --stellar-button: linear-gradient(45deg, #22349e 0%, #8183e6 100%);
-    }
 
-    .text-stellar-blue { color: var(--stellar-blue); }
-    .form-label-stellar { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; color: #777; margin-bottom: 8px; display: block; }
-
-    .form-stellar { border: 1px solid #e0e0e0; border-radius: 10px; padding: 12px; transition: 0.3s; }
-    .form-stellar:focus { border-color: var(--stellar-blue); box-shadow: 0 0 0 0.25rem rgba(14, 92, 173, 0.1); }
-
-    .btn-stellar-blue {
-        background: var(--stellar-button); color: white !important;
-        border-radius: 50px; font-weight: 700; border: none;
-        text-transform: uppercase; letter-spacing: 1px; transition: 0.3s;
-    }
-    .btn-stellar-blue:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(34, 52, 158, 0.3); }
-
-    .alert-stellar-danger { background: #fff; border-left: 5px solid #e74c3c; color: #e74c3c; border-radius: 8px; }
-    .rounded-4 { border-radius: 1.25rem !important; }
-</style>
 
 <script>
     const viviendas = @json($viviendas);

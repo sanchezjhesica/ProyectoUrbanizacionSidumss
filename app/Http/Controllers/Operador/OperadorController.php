@@ -19,15 +19,52 @@ class OperadorController extends Controller
     /**
      * PÁGINA 1: DASHBOARD (Historial del operador)
      */
+/**
+     * PÁGINA 1: DASHBOARD (Estadísticas completas de trabajo)
+     */
     public function index() 
     {
-        $lecturas = Lectura::where('id_operador', Auth::id())
-                    ->with('vivienda.propietario')
-                    ->orderBy('fecha_registro', 'desc')
-                    ->take(15)
-                    ->get();
+        $idOperador = Auth::id();
+        $mesActual = now()->month;
+        $anioActual = now()->year;
 
-        return view('operador.dashboard', compact('lecturas'));
+        // 1. Total de casas en la urbanización
+        $totalCasas = Vivienda::count();
+
+        // 2. Lecturas del mes actual
+        $lecturasMesQuery = Lectura::where('periodo_mes', $mesActual)
+            ->where('periodo_anio', $anioActual);
+
+        $lecturasDelMesCount = (clone $lecturasMesQuery)->count();
+        $consumoTotalMes     = (clone $lecturasMesQuery)->sum('consumo_m3') ?? 0;
+        $promedioConsumo     = (clone $lecturasMesQuery)->avg('consumo_m3') ?? 0;
+
+        // 3. Lecturas registradas HOY (Soluciona el error que salía en 0)
+        $lecturasHoyCount = Lectura::where('id_operador', $idOperador)
+            ->whereDate('fecha_registro', now()->toDateString())
+            ->count();
+
+        // 4. Porcentaje de avance de trabajo este mes
+        $porcentajeAvance = $totalCasas > 0 ? round(($lecturasDelMesCount / $totalCasas) * 100) : 0;
+        $casasFaltantes   = max(0, $totalCasas - $lecturasDelMesCount);
+
+        // 5. Historial reciente (con lectura anterior y actual para verificar errores)
+        $lecturas = Lectura::where('id_operador', $idOperador)
+            ->with('vivienda.propietario')
+            ->orderBy('fecha_registro', 'desc')
+            ->take(10)
+            ->get();
+
+        return view('operador.dashboard', compact(
+            'lecturas', 
+            'lecturasHoyCount', 
+            'lecturasDelMesCount', 
+            'totalCasas', 
+            'casasFaltantes',
+            'porcentajeAvance',
+            'consumoTotalMes', 
+            'promedioConsumo'
+        ));
     }
 
     /**

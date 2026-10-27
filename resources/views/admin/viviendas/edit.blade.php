@@ -1,5 +1,9 @@
 @extends('layouts.admin')
 
+@push('styles')
+    @vite('resources/css/views/admin/viviendas/edit.css')
+@endpush
+
 @section('content')
 <div class="viviendas-edit-stellar">
     <!-- 1. CABECERA RESPONSIVA -->
@@ -23,7 +27,7 @@
                         
                         <!-- Visualización de la Selección Actual -->
                         <div class="selection-preview mb-4 p-3 rounded-3 bg-white border-start border-stellar-blue border-4 shadow-sm">
-                            <small class="text-muted d-block mb-1 text-uppercase fw-bold" style="font-size: 0.65rem; letter-spacing: 1px;">Asignado actualmente:</small>
+                            <small class="text-muted d-block mb-1 text-uppercase fw-bold view-style-2fa492684f" >Asignado actualmente:</small>
                             <div id="display-nombre-seleccionado" class="fw-bold text-stellar-blue fs-5">
                                 @if($vivienda->propietario)
                                     {{ $vivienda->propietario->nombre }} {{ $vivienda->propietario->apellido_paterno }} {{ $vivienda->propietario->apellido_materno }}
@@ -126,101 +130,7 @@
     </form>
 </div>
 
-<style>
-    :root {
-        --stellar-blue: #0e5cad;
-        --stellar-grad: linear-gradient(45deg, #79f1a4 15%, #0e5cad 85%);
-        --stellar-button: linear-gradient(45deg, #22349e 0%, #8183e6 100%);
-    }
 
-    .text-stellar-blue { color: var(--stellar-blue); }
-    .border-stellar-blue { border-color: var(--stellar-blue) !important; }
-    .bg-blue-soft { background-color: rgba(14, 92, 173, 0.08); }
-    .bg-light-soft { background-color: #f8f9fa; }
-    
-    .form-label-stellar {
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        font-weight: 700;
-        color: #777;
-        margin-bottom: 8px;
-        display: block;
-    }
-
-    .form-stellar {
-        border: 1px solid #e0e0e0;
-        border-radius: 10px;
-        padding: 12px 15px;
-        background-color: #fff;
-        transition: 0.3s;
-    }
-    .form-stellar:focus {
-        border-color: var(--stellar-blue);
-        box-shadow: 0 0 0 0.25rem rgba(14, 92, 173, 0.1);
-    }
-
-    /* LISTA DE PROPIETARIOS */
-    .owner-list-container {
-        max-height: 320px;
-        overflow-y: auto;
-    }
-
-    .owner-item {
-        cursor: pointer;
-        padding: 12px 15px;
-        border-bottom: 1px solid #f1f1f1 !important;
-        transition: 0.2s;
-    }
-    .owner-item:hover { background-color: #f0f4ff; }
-
-    .icon-circle {
-        width: 35px; height: 35px;
-        background: rgba(14, 92, 173, 0.1);
-        color: var(--stellar-blue);
-        border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-    }
-
-    .icon-circle-danger {
-        width: 35px; height: 35px;
-        background: rgba(220, 53, 69, 0.1);
-        border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-    }
-
-    /* ESTADO SELECCIONADO */
-    .active-selection {
-        background: var(--stellar-button) !important;
-        color: white !important;
-    }
-    .active-selection .text-muted, .active-selection .text-danger, .active-selection .text-item-name { 
-        color: rgba(255,255,255,0.9) !important; 
-    }
-    .active-selection .icon-circle { background: rgba(255,255,255,0.2); color: white; }
-
-    .check-icon { display: none; }
-    .active-selection .check-icon { display: block; color: white; font-size: 1.2rem; }
-
-    /* BOTÓN STELLAR */
-    .btn-stellar-submit {
-        background: var(--stellar-button);
-        color: white !important;
-        border-radius: 50px;
-        font-weight: 700;
-        border: none;
-        padding: 14px 40px;
-        transition: 0.3s;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-    .btn-stellar-submit:hover { 
-        transform: translateY(-2px); 
-        box-shadow: 0 8px 20px rgba(34, 52, 158, 0.3); 
-    }
-
-    .rounded-4 { border-radius: 1.25rem !important; }
-</style>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>

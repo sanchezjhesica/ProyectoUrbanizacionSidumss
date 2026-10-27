@@ -1,5 +1,9 @@
 @extends('layouts.propietario')
 
+@push('styles')
+    @vite('resources/css/views/propietario/avisos.css')
+@endpush
+
 @section('content')
 <div class="propietario-stellar">
     <!-- 1. CABECERA DE SECCIÓN -->
@@ -63,7 +67,7 @@
                                         {{ \Carbon\Carbon::create()->month($a->mes)->translatedFormat('F') }} {{ $a->anio }}
                                     </div>
                                     <!-- NÚMERO DE CASA -->
-                                    <span class="badge bg-blue-soft text-stellar-blue font-monospace mt-1" style="font-size: 0.72rem;">
+                                    <span class="badge bg-blue-soft text-stellar-blue font-monospace mt-1 view-style-dbc8d1cddf" >
                                         <i class="fas fa-home me-1"></i> Casa #{{ $a->vivienda->nro_casa ?? 'S/N' }}
                                     </span>
                                 </td>
@@ -118,7 +122,7 @@
                                     {{ \Carbon\Carbon::create()->month($m->mes)->translatedFormat('F') }} {{ $m->anio }}
                                 </div>
                                 <!-- NÚMERO DE CASA -->
-                                <span class="badge bg-blue-soft text-stellar-blue font-monospace mt-1" style="font-size: 0.72rem;">
+                                <span class="badge bg-blue-soft text-stellar-blue font-monospace mt-1 view-style-dbc8d1cddf" >
                                     <i class="fas fa-home me-1"></i> Casa #{{ $m->vivienda->nro_casa ?? 'S/N' }}
                                 </span>
                             </td>
@@ -170,7 +174,7 @@
                                     Planilla {{ \Carbon\Carbon::create()->month($r->mes)->translatedFormat('F') }} {{ $r->anio }}
                                 </div>
                                 <!-- NÚMERO DE CASA -->
-                                <span class="badge bg-blue-soft text-stellar-blue font-monospace mt-1" style="font-size: 0.72rem;">
+                                <span class="badge bg-blue-soft text-stellar-blue font-monospace mt-1 view-style-dbc8d1cddf" >
                                     <i class="fas fa-home me-1"></i> Casa #{{ $r->vivienda->nro_casa ?? 'S/N' }}
                                 </span>
                             </td>
@@ -217,10 +221,12 @@
                 <div class="text-center mb-3">
                     <p class="text-muted small">Escanee y realice la transferencia desde su banco.</p>
                     
-                    @if($config && $config->qr_pago)
+                    @if($config && $config->qr_pago && $config->qr_pago !== 'sin_qr')
+                        <!-- SI HAY QR VÁLIDO: Muestra la imagen -->
                         <img src="{{ asset('storage/' . $config->qr_pago) }}" class="img-fluid rounded-3 border shadow-sm" style="max-width: 180px; height: auto;" alt="QR Pago">
                     @else
-                        <img src="{{ asset('img/logo.jpg') }}" class="img-fluid rounded-3 border shadow-sm opacity-50" style="max-width: 160px; height: auto;">
+                        <!-- SI NO HAY QR: Muestra el logo por defecto y la advertencia -->
+                        <img src="{{ asset('img/logo.jpg') }}" class="img-fluid rounded-3 border shadow-sm opacity-50" style="max-width: 160px; height: auto;" alt="Logo por defecto">
                         <p class="text-danger small mt-2">QR no disponible</p>
                     @endif
                 </div>
@@ -247,86 +253,6 @@
     </div>
 </div>
 
-<style>
-    :root { 
-        --stellar-blue: #0e5cad; 
-        --stellar-button: linear-gradient(45deg, #22349e 0%, #8183e6 100%); 
-    }
-
-    .card-glass {
-        background: rgba(255, 255, 255, 0.8) !important;
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.3) !important;
-    }
-
-    .text-stellar-blue { color: var(--stellar-blue); }
-    .bg-light-soft { background-color: rgba(248, 249, 250, 0.5); }
-    .bg-blue-soft { background-color: rgba(14, 92, 173, 0.08); }
-    .bg-success-soft { background-color: rgba(40, 167, 69, 0.1); }
-    .bg-danger-soft { background-color: rgba(220, 53, 69, 0.1); }
-    
-    .uppercase-tracking { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 700; color: #888; }
-
-    .btn-stellar-tab {
-        background-color: rgba(255, 255, 255, 0.6);
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        color: #555;
-        border-radius: 12px;
-        padding: 10px 20px;
-        font-weight: 600;
-        transition: 0.3s;
-    }
-    .nav-pills .nav-link.active {
-        background-color: var(--stellar-blue) !important;
-        color: white !important;
-        box-shadow: 0 4px 12px rgba(14, 92, 173, 0.2);
-    }
-
-    .badge-stellar {
-        display: inline-block;
-        padding: 5px 12px;
-        border-radius: 50px;
-        font-size: 10px;
-        font-weight: 800;
-        text-transform: uppercase;
-    }
-
-    .btn-view-stellar {
-        background-color: white;
-        border: 1px solid var(--stellar-blue);
-        color: var(--stellar-blue);
-        border-radius: 50px;
-        padding: 6px 14px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        transition: 0.3s;
-        text-decoration: none;
-    }
-    .btn-view-stellar:hover { background-color: var(--stellar-blue); color: white; }
-
-    .btn-qr-stellar {
-        background-color: #f39c12;
-        color: white !important;
-        border-radius: 50px;
-        padding: 6px 14px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        border: none;
-        transition: 0.3s;
-    }
-    .btn-qr-stellar:hover { background-color: #d35400; transform: translateY(-2px); }
-
-    .form-label-stellar { font-size: 0.7rem; text-transform: uppercase; font-weight: 800; color: #777; margin-bottom: 5px; display: block; }
-    .form-stellar { border-radius: 10px; border: 1px solid #ddd; padding: 12px; background: #fdfdfd; font-size: 0.9rem; }
-    .btn-stellar-submit { background: var(--stellar-button); color: white !important; border: none; border-radius: 50px; font-weight: 700; transition: 0.3s; }
-    .btn-stellar-submit:hover { opacity: 0.9; transform: scale(1.02); }
-
-    .tabs-container-scroll { overflow-x: auto; padding-bottom: 5px; }
-    .rounded-4 { border-radius: 1.25rem !important; }
-
-    .alert-stellar-success { background: white; border-left: 5px solid #28a745; color: #155724; border-radius: 12px; }
-</style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {

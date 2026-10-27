@@ -2,19 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <style>
-        body { font-family: sans-serif; color: #333; font-size: 13px; }
-        .header { text-align: center; border-bottom: 2px solid #0e5cad; margin-bottom: 20px; padding-bottom: 10px; }
-        .header h1 { color: #0e5cad; margin: 0; text-transform: uppercase; }
-        .info-table { width: 100%; margin-bottom: 20px; }
-        .info-table td { vertical-align: top; }
-        .section-title { background: #0e5cad; color: white; padding: 5px 10px; font-weight: bold; margin-top: 15px; }
-        table.detalles { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        table.detalles th { background: #f2f2f2; border: 1px solid #ccc; padding: 8px; text-align: left; }
-        table.detalles td { border: 1px solid #ccc; padding: 8px; }
-        .total-box { text-align: right; margin-top: 20px; font-size: 18px; font-weight: bold; color: #0e5cad; }
-        .status { position: absolute; top: 100px; right: 20px; font-size: 40px; opacity: 0.1; transform: rotate(-20deg); border: 5px solid; padding: 10px; }
-    </style>
+    @include('layouts.pdf_styles', ['stylesheet' => 'views/propietario/recibo_agua.css'])
 </head>
 <body>
     <div class="status"> {{ strtoupper($cobro->estado_pago) }} </div>
@@ -31,7 +19,7 @@
                 <b>CASA NRO:</b> {{ $cobro->vivienda->nro_casa }}<br>
                 <b>NRO MEDIDOR:</b> {{ $cobro->vivienda->nro_medidor }}
             </td>
-            <td style="text-align: right;">
+            <td  class="view-style-13cbe03b9a">
                 <b>PERIODO:</b> {{ $cobro->mes }}/{{ $cobro->anio }}<br>
                 <b>FECHA EMISIÓN:</b> {{ date('d/m/Y') }}<br>
                 <b>ID AVISO:</b> #AGU-{{ $cobro->id_cobro_agua }}
@@ -57,26 +45,26 @@
     <table class="detalles">
         <tr>
             <th>Concepto</th>
-            <th style="text-align: right;">Subtotal</th>
+            <th  class="view-style-13cbe03b9a">Subtotal</th>
         </tr>
         <tr>
             <td>Consumo de Agua Potable</td>
-            <td style="text-align: right;">Bs. {{ number_format($cobro->subtotal_consumo, 2) }}</td>
+            <td  class="view-style-13cbe03b9a">Bs. {{ number_format($cobro->subtotal_consumo, 2) }}</td>
         </tr>
         <tr>
             <td>Tasa de Alcantarillado (Fijo)</td>
-            <td style="text-align: right;">Bs. {{ number_format($cobro->monto_alcantarillado, 2) }}</td>
+            <td  class="view-style-13cbe03b9a">Bs. {{ number_format($cobro->monto_alcantarillado, 2) }}</td>
         </tr>
         @if($montoReservas > 0)
         <tr>
             <td>Alquiler de Áreas Recreativas (Reservas)</td>
-            <td style="text-align: right;">Bs. {{ number_format($montoReservas, 2) }}</td>
+            <td  class="view-style-13cbe03b9a">Bs. {{ number_format($montoReservas, 2) }}</td>
         </tr>
         @endif
         @if($cobro->monto_mora > 0)
-        <tr style="color: red;">
+        <tr  class="view-style-31981a7d51">
             <td>Recargo por Mora</td>
-            <td style="text-align: right;">Bs. {{ number_format($cobro->monto_mora, 2) }}</td>
+            <td  class="view-style-13cbe03b9a">Bs. {{ number_format($cobro->monto_mora, 2) }}</td>
         </tr>
         @endif
     </table>

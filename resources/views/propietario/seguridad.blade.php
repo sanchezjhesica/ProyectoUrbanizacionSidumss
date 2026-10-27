@@ -1,5 +1,9 @@
 @extends('layouts.propietario')
 
+@push('styles')
+    @vite('resources/css/views/propietario/seguridad.css')
+@endpush
+
 @section('content')
 <div class="seguridad-stellar">
     <!-- CABECERA -->
@@ -59,51 +63,5 @@
     </div>
 </div>
 
-<style>
-    :root { 
-        --stellar-blue: #0e5cad; 
-        --stellar-button: linear-gradient(45deg, #22349e 0%, #8183e6 100%); 
-    }
 
-    .card-glass {
-        background: rgba(255, 255, 255, 0.8) !important;
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.3) !important;
-    }
-
-    .form-label-stellar { 
-        font-size: 0.75rem; 
-        text-transform: uppercase; 
-        font-weight: 800; 
-        color: #777; 
-        margin-bottom: 8px; 
-        display: block; 
-    }
-
-    .form-stellar { 
-        border-radius: 10px; 
-        border: 1px solid #ddd; 
-        padding: 12px; 
-        background: #fdfdfd; 
-        transition: 0.3s;
-    }
-
-    .form-stellar:focus {
-        border-color: var(--stellar-blue);
-        box-shadow: 0 0 0 0.25rem rgba(14, 92, 173, 0.1);
-        background: white;
-    }
-
-    .btn-stellar-blue { 
-        background: var(--stellar-button); 
-        color: white !important; 
-        border: none; 
-        border-radius: 50px; 
-        font-weight: 700; 
-        letter-spacing: 1px;
-    }
-
-    .btn-stellar-blue:hover { opacity: 0.9; transform: translateY(-2px); }
-</style>
 @endsection

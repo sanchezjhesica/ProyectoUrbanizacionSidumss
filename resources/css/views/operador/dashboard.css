@@ -1,0 +1,44 @@
+:root {
+        --stellar-blue: #0e5cad;
+        --stellar-button: linear-gradient(45deg, #22349e 0%, #8183e6 100%);
+    }
+
+    .card-glass {
+        background: rgba(255, 255, 255, 0.9) !important;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    }
+
+    .text-stellar-blue { color: var(--stellar-blue); }
+    .bg-blue-soft { background-color: rgba(14, 92, 173, 0.1); color: var(--stellar-blue); }
+    .bg-info-soft { background-color: rgba(14, 165, 233, 0.12); color: #0284c7 !important; }
+    .bg-success-soft { background-color: rgba(16, 185, 129, 0.12); color: #059669 !important; }
+    .bg-warning-soft { background-color: rgba(245, 158, 11, 0.15); }
+    .text-warning-dark { color: #b45309 !important; }
+    .bg-light-soft { background-color: rgba(248, 249, 250, 0.6); }
+
+    .uppercase-tracking { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; }
+
+    .icon-circle-sm {
+        width: 34px; height: 34px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.9rem;
+    }
+
+    .btn-stellar-blue {
+        background: var(--stellar-button); color: white !important;
+        border-radius: 50px; font-weight: 600; border: none;
+        padding: 8px 20px; font-size: 0.82rem; transition: 0.2s;
+    }
+    .btn-stellar-blue:hover { opacity: 0.92; transform: translateY(-1px); }
+
+    .rounded-4 { border-radius: 1rem !important; }
+
+.view-style-dbc8d1cddf { font-size: 0.72rem !important; }
+.view-style-119946eef6 { height: 5px !important; }
+.view-style-e178c365b5 { width: var(--view-style-e178c365b5-value-0) !important; }
+.view-style-cb8a8ef79f { font-size: 0.7rem !important; }
+.view-style-933a8ef29e { font-size: 0.85rem !important; }
+.view-style-22b62ca48b { font-size: 0.8rem !important; }
+

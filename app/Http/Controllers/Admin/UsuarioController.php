@@ -147,25 +147,32 @@ class UsuarioController extends Controller
             ->with('success', "La contraseña de {$usuario->nombre} ha sido restablecida a: sidumss123");
     }
 
-    public function enviarCodigoVerificacion(Request $request)
+public function enviarCodigoVerificacion(Request $request)
     {
         $request->validate(['email' => 'required|email']);
 
         $email = $request->email;
         $codigo = rand(100000, 999999);
 
+        // Guardamos el código en la sesión por 10 minutos
         Session::put('codigo_verificacion_' . $email, $codigo);
         Session::put('email_a_verificar', $email);
 
         try {
-            Mail::raw("Su código de verificación para SIDUMSS es: {$codigo}", function ($message) use ($email) {
+            Mail::raw("Hola,\n\nSu código de verificación para registrarse en el sistema SIDUMSS es:\n\n{$codigo}\n\nEste código es personal y válido para este registro.", function ($message) use ($email) {
                 $message->to($email)
-                        ->subject('Código de Verificación de Correo - SIDUMSS');
+                        ->subject('Código de Verificación - SIDUMSS');
             });
 
-            return response()->json(['success' => true, 'message' => '¡Código enviado con éxito!']);
+            return response()->json([
+                'success' => true, 
+                'message' => '¡Código enviado con éxito! Revise su bandeja de entrada o spam.'
+            ]);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Error al enviar correo: ' . $e->getMessage()], 500);
+            return response()->json([
+                'success' => false, 
+                'message' => 'Error al enviar correo: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

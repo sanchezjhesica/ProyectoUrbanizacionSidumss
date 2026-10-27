@@ -1,5 +1,9 @@
 @extends('layouts.admin')
 
+@push('styles')
+    @vite('resources/css/views/admin/reservas/index.css')
+@endpush
+
 @section('content')
 <div class="reservas-stellar">
     <!-- 1. ENCABEZADO CON BOTÓN DE DESCARGA ANUAL -->
@@ -76,12 +80,12 @@
                 <table class="table table-hover align-middle mb-0 w-100" id="tabla-reservas">
                     <thead class="bg-light border-bottom">
                         <tr>
-                            <th class="ps-3 ps-md-4 py-3 uppercase-tracking" style="min-width: 140px;">Fecha y Horario</th>
+                            <th class="ps-3 ps-md-4 py-3 uppercase-tracking view-style-7f382da7d0" >Fecha y Horario</th>
                             <th class="py-3 uppercase-tracking">Residente / Casa</th>
                             <th class="py-3 uppercase-tracking">Área Común</th>
                             <th class="py-3 uppercase-tracking text-center">Costo</th>
                             <th class="py-3 uppercase-tracking text-center">Estado</th>
-                            <th class="py-3 pe-3 pe-md-4 text-end uppercase-tracking" style="min-width: 130px;">Acciones</th>
+                            <th class="py-3 pe-3 pe-md-4 text-end uppercase-tracking view-style-aee55689be" >Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-reservas">
@@ -89,17 +93,17 @@
                         <tr class="fila-reserva">
                             <!-- FECHA Y HORA DETALLADA -->
                             <td class="ps-3 ps-md-4 text-nowrap">
-                                <div class="fw-bold text-dark" style="font-size: 0.85rem;">
+                                <div class="fw-bold text-dark view-style-933a8ef29e" >
                                     <i class="far fa-calendar-alt me-1 text-primary"></i>
                                     {{ date('d/m/Y', strtotime($r->fecha_reserva)) }}
                                 </div>
                                 @if(!empty($r->hora_inicio) && $r->hora_inicio != '08:00:00')
-                                    <div class="badge bg-light text-stellar-blue border fw-bold mt-1" style="font-size: 0.72rem;">
+                                    <div class="badge bg-light text-stellar-blue border fw-bold mt-1 view-style-dbc8d1cddf" >
                                         <i class="far fa-clock me-1 text-info"></i>
                                         {{ substr($r->hora_inicio, 0, 5) }} a {{ substr($r->hora_fin, 0, 5) }}
                                     </div>
                                 @else
-                                    <small class="text-muted d-block" style="font-size: 0.7rem;">
+                                    <small class="text-muted d-block view-style-cb8a8ef79f" >
                                         <i class="far fa-clock me-1"></i> Día completo
                                     </small>
                                 @endif
@@ -192,58 +196,7 @@
     </div>
 </div>
 
-<style>
-    :root {
-        --stellar-blue: #0e5cad;
-        --stellar-button: linear-gradient(45deg, #22349e 0%, #8183e6 100%);
-    }
 
-    .text-stellar-blue { color: var(--stellar-blue); }
-    .bg-blue-soft { background-color: rgba(14, 92, 173, 0.08); }
-    .bg-light-soft { background-color: #f8fafc; }
-    .alert-stellar { background-color: #e8f5e9; color: #2e7d32; border-left: 5px solid #2e7d32; }
-
-    .uppercase-tracking {
-        font-size: 0.68rem;
-        text-transform: uppercase;
-        letter-spacing: 0.8px;
-        font-weight: 700;
-        color: #718096;
-    }
-
-    .bg-success-soft { background-color: rgba(46, 125, 50, 0.12); color: #2e7d32 !important; }
-    .bg-danger-soft { background-color: rgba(229, 62, 62, 0.12); color: #dc2626 !important; }
-    .bg-warning-soft { background-color: rgba(243, 156, 18, 0.15); color: #b45309 !important; }
-
-    /* Botones de acción */
-    .btn-action-reserva {
-        height: 32px;
-        padding: 0 10px;
-        border-radius: 8px;
-        font-size: 0.72rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        transition: all 0.2s;
-    }
-    .btn-accept { background-color: #e8f5e9; border: 1px solid #c8e6c9; color: #2e7d32; }
-    .btn-accept:hover:not(:disabled) { background-color: #2e7d32; color: white; }
-    .btn-reject { background-color: #ffebee; border: 1px solid #ffcdd2; color: #c62828; }
-    .btn-reject:hover:not(:disabled) { background-color: #c62828; color: white; }
-    .btn-action-reserva:disabled { opacity: 0.35; cursor: not-allowed; }
-
-    .btn-stellar-blue {
-        background: var(--stellar-button);
-        color: white !important;
-        border-radius: 50px;
-        font-weight: 600;
-        font-size: 0.82rem;
-        border: none;
-        transition: 0.2s;
-    }
-    .btn-stellar-blue:hover { opacity: 0.92; transform: translateY(-1px); }
-
-    .rounded-4 { border-radius: 1rem !important; }
-</style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
