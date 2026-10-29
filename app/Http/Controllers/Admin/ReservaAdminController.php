@@ -20,14 +20,14 @@ class ReservaAdminController extends Controller
         $query = DB::table('reservas')
             ->join('usuarios', 'reservas.id_usuario', '=', 'usuarios.id_usuario')
             ->join('areas_recreativas', 'reservas.id_area', '=', 'areas_recreativas.id_area')
-            ->leftJoin('viviendas', 'reservas.id_vivienda', '=', 'viviendas.id_vivienda') // <-- CORREGIDO AQUÍ
+            ->leftJoin('viviendas', 'reservas.id_vivienda', '=', 'viviendas.id_vivienda')
             ->select(
                 'reservas.*',
                 'usuarios.nombre',
                 'usuarios.apellido_paterno',
                 'usuarios.ci',
                 'usuarios.telefono',
-                'viviendas.nro_casa', // Trae únicamente la casa de la reserva
+                'viviendas.nro_casa',
                 'areas_recreativas.nombre_area'
             );
 
@@ -58,20 +58,14 @@ class ReservaAdminController extends Controller
         return redirect()->back()->with('error', 'La solicitud de reserva ha sido DENEGADA.');
     }
 
-    /**
-     * DESCARGAR REPORTE ANUAL EN PDF (CORREGIDO SIN DUPLICADOS)
-     */
+
     public function descargarAnual(Request $request)
     {
         $anio = $request->get('anio', date('Y'));
-
-        // =========================================================================
-        // CORREGIDO EN EL PDF: Cruce por reservas.id_vivienda
-        // =========================================================================
         $reservas = DB::table('reservas')
             ->join('usuarios', 'reservas.id_usuario', '=', 'usuarios.id_usuario')
             ->join('areas_recreativas', 'reservas.id_area', '=', 'areas_recreativas.id_area')
-            ->leftJoin('viviendas', 'reservas.id_vivienda', '=', 'viviendas.id_vivienda') // <-- CORREGIDO AQUÍ
+            ->leftJoin('viviendas', 'reservas.id_vivienda', '=', 'viviendas.id_vivienda') 
             ->whereYear('reservas.fecha_reserva', $anio)
             ->select(
                 'reservas.*',

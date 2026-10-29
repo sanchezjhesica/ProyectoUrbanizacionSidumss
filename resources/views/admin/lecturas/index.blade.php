@@ -22,6 +22,13 @@
         </div>
     @endif
 
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show mb-4 shadow-sm border-0" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i> {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
     <!-- 3. BUSCADOR POR CASA (FILTRADO) -->
     <div class="card border-0 shadow-sm rounded-4 mb-5 bg-light-soft border-start border-4 border-stellar-blue">
         <div class="card-body p-4">
@@ -93,7 +100,7 @@
                                 <th class="uppercase-tracking">Consumo</th>
                                 <th class="uppercase-tracking">Total</th>
                                 <th class="uppercase-tracking">Estado</th>
-                                <th class="text-center uppercase-tracking">Acciones</th>
+                                <th class="text-center uppercase-tracking" style="min-width: 140px;">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -109,17 +116,25 @@
                                 <td class="fw-bold text-stellar-blue">
                                     Bs. {{ number_format($a->total_real ?? $a->total_pagar, 2) }}
                                     @if(($a->monto_reservas ?? 0) > 0)
-                                        <br><small class="text-muted fw-normal view-style-dbc8d1cddf" >(Inc. Bs. {{ number_format($a->monto_reservas, 2) }} reservas)</small>
+                                        <br><small class="text-muted fw-normal" style="font-size: 0.72rem;">(Inc. Bs. {{ number_format($a->monto_reservas, 2) }} reservas)</small>
                                     @endif
                                 </td>
 
+                                <!-- ESTADO DINÁMICO -->
                                 <td>
-                                    <span class="badge-stellar {{ $a->estado_pago == 'Pagado' ? 'bg-success-soft text-success' : 'bg-danger-soft text-danger' }}">
-                                        {{ $a->estado_pago }}
-                                    </span>
+                                    @if($a->estado_pago == 'Pagado')
+                                        <span class="badge-stellar bg-success-soft text-success">Pagado</span>
+                                    @elseif($a->estado_pago == 'Anulado')
+                                        <span class="badge-stellar bg-light text-muted border">Anulado</span>
+                                    @else
+                                        <span class="badge-stellar bg-danger-soft text-danger">Pendiente</span>
+                                    @endif
                                 </td>
+
+                                <!-- ACCIONES -->
                                 <td class="text-center">
-                                    <div class="d-flex justify-content-center gap-2">
+                                    <div class="d-flex justify-content-center align-items-center gap-2">
+                                        <!-- BOTÓN COBRAR -->
                                         @if($a->estado_pago == 'Pendiente')
                                             <form action="{{ route('admin.pagar.agua', $a->id_cobro_agua) }}" method="POST">
                                                 @csrf
@@ -127,11 +142,21 @@
                                             </form>
                                         @endif
 
-                                        {{-- EL PDF SOLO APARECE SI ESTÁ PAGADO --}}
+                                        <!-- BOTÓN PDF (Solo si está pagado) -->
                                         @if($a->estado_pago == 'Pagado')
                                             <a href="{{ route('admin.descargar.agua', $a->id_cobro_agua) }}" class="btn-icon-pdf" title="Descargar Recibo Oficial PDF">
                                                 <i class="fas fa-file-pdf"></i>
                                             </a>
+                                        @endif
+
+                                        <!-- NUEVO BOTÓN: ANULAR LECTURA (Solo si está pendiente y tiene lectura asociada) -->
+                                        @if($a->estado_pago == 'Pendiente' && $a->id_lectura)
+                                            <form action="{{ route('admin.lecturas.anular', $a->id_lectura) }}" method="POST" onsubmit="return confirm('¿Está seguro de ANULAR esta lectura? Se cancelarán los cobros de este mes para que el operador pueda volver a medir.')">
+                                                @csrf
+                                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 34px; height: 34px;" title="Anular lectura errónea">
+                                                    <i class="fas fa-ban"></i>
+                                                </button>
+                                            </form>
                                         @endif
                                     </div>
                                 </td>
@@ -166,9 +191,13 @@
                                 <td>{{ \Carbon\Carbon::create()->month($m->mes)->translatedFormat('F') }} {{ $m->anio }}</td>
                                 <td>Bs. {{ number_format($m->monto_fijo, 2) }}</td>
                                 <td>
-                                    <span class="badge-stellar {{ $m->estado_pago == 'Pagado' ? 'bg-success-soft text-success' : 'bg-danger-soft text-danger' }}">
-                                        {{ $m->estado_pago }}
-                                    </span>
+                                    @if($m->estado_pago == 'Pagado')
+                                        <span class="badge-stellar bg-success-soft text-success">Pagado</span>
+                                    @elseif($m->estado_pago == 'Anulado')
+                                        <span class="badge-stellar bg-light text-muted border">Anulado</span>
+                                    @else
+                                        <span class="badge-stellar bg-danger-soft text-danger">Pendiente</span>
+                                    @endif
                                 </td>
                                 <td class="text-center">
                                     <div class="d-flex justify-content-center gap-2">
@@ -179,7 +208,6 @@
                                             </form>
                                         @endif
 
-                                        {{-- EL PDF SOLO APARECE SI ESTÁ PAGADO --}}
                                         @if($m->estado_pago == 'Pagado')
                                             <a href="{{ route('admin.descargar.mantenimiento', $m->id_cobro_mantenimiento) }}" class="btn-icon-pdf" title="Descargar Recibo Oficial PDF">
                                                 <i class="fas fa-file-pdf"></i>
@@ -221,9 +249,13 @@
                                 <td>{{ \Carbon\Carbon::create()->month($r->mes)->translatedFormat('F') }} {{ $r->anio }}</td>
                                 <td class="fw-bold text-stellar-blue">Bs. {{ number_format($r->total_mes, 2) }}</td>
                                 <td>
-                                    <span class="badge-stellar {{ $r->estado_pago == 'Pagado' ? 'bg-success-soft text-success' : 'bg-danger-soft text-danger' }}">
-                                        {{ $r->estado_pago }}
-                                    </span>
+                                    @if($r->estado_pago == 'Pagado')
+                                        <span class="badge-stellar bg-success-soft text-success">Pagado</span>
+                                    @elseif($r->estado_pago == 'Anulado')
+                                        <span class="badge-stellar bg-light text-muted border">Anulado</span>
+                                    @else
+                                        <span class="badge-stellar bg-danger-soft text-danger">Pendiente</span>
+                                    @endif
                                 </td>
                                 <td class="text-center">
                                     <div class="d-flex justify-content-center gap-2">
@@ -237,7 +269,6 @@
                                             </form>
                                         @endif
 
-                                        {{-- EL PDF SOLO APARECE SI ESTÁ PAGADO --}}
                                         @if($r->estado_pago == 'Pagado')
                                             <a href="{{ route('admin.descargar.remesas', $r->id_referencia) }}" class="btn-icon-pdf" title="Descargar Recibo Oficial PDF">
                                                 <i class="fas fa-file-pdf"></i>
@@ -256,6 +287,4 @@
         </div>
     </div>
 </div>
-
-
 @endsection

@@ -11,7 +11,7 @@ class ConfiguracionTarifa extends Model
 
     protected $table = 'configuracion_tarifas';
     protected $primaryKey = 'id_config';
-    public $timestamps = false; // O true si tienes created_at y updated_at
+    public $timestamps = false;
 
     protected $fillable = [
         'precio_m3_agua',

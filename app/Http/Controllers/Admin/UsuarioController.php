@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;   // <-- IMPORTANTE para consultar la tabla roles
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
@@ -98,7 +98,7 @@ class UsuarioController extends Controller
 
         // 3. Crear el usuario con el ROL seleccionado dinámicamente
         User::create([
-            'id_rol' => $request->id_rol, // <-- Asignación dinámica del rol
+            'id_rol' => $request->id_rol,
             'nombre' => trim($request->nombre),
             'apellido_paterno' => trim($request->apellido_paterno),
             'apellido_materno' => trim($request->apellido_materno),
@@ -118,7 +118,7 @@ class UsuarioController extends Controller
 
     public function edit($id) {
         $usuario = User::findOrFail($id);
-        $roles = DB::table('roles')->get(); // Enviamos roles por si se edita el rol
+        $roles = DB::table('roles')->get();
         return view('admin.usuarios.edit', compact('usuario', 'roles'));
     }
 

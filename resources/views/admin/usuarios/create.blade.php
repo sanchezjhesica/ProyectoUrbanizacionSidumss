@@ -8,14 +8,14 @@
 <div class="usuarios-create-stellar">
     <!-- 1. CABECERA -->
     <div class="mb-4 mb-md-5 border-bottom pb-4">
-        <h2 class="text-stellar-blue mb-0 fw-bold"><i class="fas fa-user-plus me-2"></i> Registrar Usuario</h2>
+        <h2 class="text-stellar-blue mb-0 fw-bold"><i class="fas fa-user-plus me-2" aria-hidden="true"></i> Registrar Usuario</h2>
         <p class="text-muted mb-0">Cree una nueva cuenta de acceso, designe su rol y valide el correo electrónico.</p>
     </div>
 
     <!-- 2. ALERTA DE ERRORES -->
     @if ($errors->any())
-        <div class="alert alert-stellar-danger mb-4 shadow-sm animate__animated animate__shakeX">
-            <div class="fw-bold mb-2"><i class="fas fa-exclamation-triangle me-2"></i> Atención:</div>
+        <div class="alert alert-stellar-danger mb-4 shadow-sm animate__animated animate__shakeX" role="alert">
+            <div class="fw-bold mb-2"><i class="fas fa-exclamation-triangle me-2" aria-hidden="true"></i> Atención:</div>
             <ul class="mb-0 small">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -32,52 +32,52 @@
                 
                 <!-- Sección: Información Personal -->
                 <div class="form-section mb-5">
-                    <h5 class="text-stellar-blue fw-bold mb-4 border-bottom pb-2">
-                        <i class="fas fa-id-card me-2"></i>Información Personal
-                    </h5>
+                    <h3 class="text-stellar-blue fw-bold mb-4 border-bottom pb-2 fs-5">
+                        <i class="fas fa-id-card me-2" aria-hidden="true"></i>Información Personal
+                    </h3>
                     <div class="row g-3 g-md-4">
                         <div class="col-md-4">
-                            <label class="form-label-stellar">Nombre(s)</label>
-                            <input type="text" name="nombre" class="form-control form-stellar" value="{{ old('nombre') }}" placeholder="Ej. Juan" required>
+                            <label for="input-nombre" class="form-label-stellar">Nombre(s)</label>
+                            <input type="text" id="input-nombre" name="nombre" class="form-control form-stellar" value="{{ old('nombre') }}" placeholder="Ej. Juan" required>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label-stellar">Apellido Paterno</label>
-                            <input type="text" name="apellido_paterno" class="form-control form-stellar" value="{{ old('apellido_paterno') }}" placeholder="Ej. Pérez">
+                            <label for="input-paterno" class="form-label-stellar">Apellido Paterno</label>
+                            <input type="text" id="input-paterno" name="apellido_paterno" class="form-control form-stellar" value="{{ old('apellido_paterno') }}" placeholder="Ej. Pérez">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label-stellar">Apellido Materno</label>
-                            <input type="text" name="apellido_materno" class="form-control form-stellar" value="{{ old('apellido_materno') }}" placeholder="Ej. Mamani">
+                            <label for="input-materno" class="form-label-stellar">Apellido Materno</label>
+                            <input type="text" id="input-materno" name="apellido_materno" class="form-control form-stellar" value="{{ old('apellido_materno') }}" placeholder="Ej. Mamani">
                         </div>
                     </div>
                 </div>
 
                 <!-- Sección: Documentación y Rol del Usuario -->
                 <div class="form-section mb-5">
-                    <h5 class="text-stellar-blue fw-bold mb-4 border-bottom pb-2">
-                        <i class="fas fa-address-book me-2"></i>Documentación y Rol de Usuario
-                    </h5>
+                    <h3 class="text-stellar-blue fw-bold mb-4 border-bottom pb-2 fs-5">
+                        <i class="fas fa-address-book me-2" aria-hidden="true"></i>Documentación y Rol de Usuario
+                    </h3>
                     <div class="row g-3 g-md-4">
                         <div class="col-md-4">
-                            <label class="form-label-stellar">Cédula de Identidad (CI)</label>
+                            <label for="input-ci" class="form-label-stellar">Cédula de Identidad (CI)</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-fingerprint text-muted"></i></span>
-                                <input type="text" name="ci" class="form-control form-stellar border-start-0" value="{{ old('ci') }}" placeholder="Número de documento" required>
+                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-fingerprint text-muted" aria-hidden="true"></i></span>
+                                <input type="text" id="input-ci" name="ci" class="form-control form-stellar border-start-0" value="{{ old('ci') }}" placeholder="Número de documento" required>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label-stellar">Teléfono / Celular</label>
+                            <label for="input-telefono" class="form-label-stellar">Teléfono / Celular</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-mobile-alt text-muted"></i></span>
-                                <input type="text" name="telefono" class="form-control form-stellar border-start-0" value="{{ old('telefono') }}" placeholder="Ej. 70000000">
+                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-mobile-alt text-muted" aria-hidden="true"></i></span>
+                                <input type="text" id="input-telefono" name="telefono" class="form-control form-stellar border-start-0" value="{{ old('telefono') }}" placeholder="Ej. 70000000">
                             </div>
                         </div>
 
-                        <!-- NUEVO CAMPO: SELECCIÓN DE ROL -->
+                        <!-- SELECCIÓN DE ROL -->
                         <div class="col-md-4">
-                            <label class="form-label-stellar">Rol de Usuario</label>
+                            <label for="select-rol" class="form-label-stellar">Rol de Usuario</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-user-tag text-muted"></i></span>
-                                <select name="id_rol" class="form-select form-stellar border-start-0" required>
+                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-user-tag text-muted" aria-hidden="true"></i></span>
+                                <select id="select-rol" name="id_rol" class="form-select form-stellar border-start-0" required>
                                     <option value="" disabled {{ old('id_rol') ? '' : 'selected' }}>Seleccione un rol...</option>
                                     @if(isset($roles) && count($roles) > 0)
                                         @foreach($roles as $rol)
@@ -86,7 +86,6 @@
                                             </option>
                                         @endforeach
                                     @else
-                                        {{-- Opciones por defecto según tu tabla roles --}}
                                         <option value="1" {{ old('id_rol') == 1 ? 'selected' : '' }}>Administrador</option>
                                         <option value="2" {{ old('id_rol') == 2 ? 'selected' : '' }}>Operador</option>
                                         <option value="3" {{ old('id_rol') == 3 ? 'selected' : '' }}>Propietario</option>
@@ -99,21 +98,21 @@
 
                 <!-- Sección: Acceso y Validación de Correo -->
                 <div class="form-section mb-5">
-                    <h5 class="text-stellar-blue fw-bold mb-4 border-bottom pb-2">
-                        <i class="fas fa-key me-2"></i>Credenciales y Validación de Correo
-                    </h5>
+                    <h3 class="text-stellar-blue fw-bold mb-4 border-bottom pb-2 fs-5">
+                        <i class="fas fa-key me-2" aria-hidden="true"></i>Credenciales y Validación de Correo
+                    </h3>
                     
                     <div class="row g-3 g-md-4 align-items-end mb-4">
                         <div class="col-md-8">
-                            <label class="form-label-stellar">Correo Electrónico</label>
+                            <label for="input-email" class="form-label-stellar">Correo Electrónico</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-envelope text-muted"></i></span>
+                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-envelope text-muted" aria-hidden="true"></i></span>
                                 <input type="email" name="email" id="input-email" class="form-control form-stellar border-start-0" value="{{ old('email') }}" placeholder="usuario@correo.com" required>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <button type="button" id="btn-enviar-codigo" class="btn btn-outline-primary w-100 py-2 fw-bold rounded-pill">
-                                <i class="fas fa-paper-plane me-2"></i> Enviar Código
+                                <i class="fas fa-paper-plane me-2" aria-hidden="true"></i> Enviar Código
                             </button>
                         </div>
                     </div>
@@ -121,7 +120,7 @@
                     <!-- Input de Código (Oculto hasta que se envía) -->
                     <div id="contenedor-codigo" class="row g-3 g-md-4 d-none mb-4 animate__animated animate__fadeIn">
                         <div class="col-md-6">
-                            <label class="form-label-stellar text-success"><i class="fas fa-shield-alt me-1"></i> Ingrese el Código de 6 Dígitos</label>
+                            <label for="input-codigo" class="form-label-stellar text-success"><i class="fas fa-shield-alt me-1" aria-hidden="true"></i> Ingrese el Código de 6 Dígitos</label>
                             <input type="text" name="codigo_verificacion" id="input-codigo" class="form-control form-stellar fw-bold text-center fs-4" placeholder="123456" maxlength="6">
                             <small class="text-muted mt-1 d-block">Se ha enviado un código de prueba a su correo.</small>
                         </div>
@@ -129,12 +128,12 @@
 
                     <div class="row g-3 g-md-4">
                         <div class="col-md-6">
-                            <label class="form-label-stellar">Contraseña Inicial</label>
-                            <input type="password" name="password" class="form-control form-stellar" placeholder="Mínimo 8 caracteres" required>
+                            <label for="input-password" class="form-label-stellar">Contraseña Inicial</label>
+                            <input type="password" id="input-password" name="password" class="form-control form-stellar" placeholder="Mínimo 8 caracteres" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label-stellar">Confirmar Contraseña</label>
-                            <input type="password" name="password_confirmation" class="form-control form-stellar" placeholder="Repita la contraseña" required>
+                            <label for="input-password-confirmation" class="form-label-stellar">Confirmar Contraseña</label>
+                            <input type="password" id="input-password-confirmation" name="password_confirmation" class="form-control form-stellar" placeholder="Repita la contraseña" required>
                         </div>
                     </div>
                 </div>
@@ -142,18 +141,16 @@
                 <!-- 4. BOTONES DE ACCIÓN -->
                 <div class="pt-4 border-top d-flex flex-column flex-md-row gap-3 justify-content-md-end">
                     <a href="{{ route('admin.usuarios.index') }}" class="btn btn-outline-secondary rounded-pill px-4 d-flex align-items-center justify-content-center order-2 order-md-1">
-                        <i class="fas fa-arrow-left me-2"></i> Cancelar
+                        <i class="fas fa-arrow-left me-2" aria-hidden="true"></i> Cancelar
                     </a>
                     <button type="submit" id="btn-guardar" class="btn btn-stellar-blue btn-lg px-5 shadow-sm order-1 order-md-2">
-                        <i class="fas fa-save me-2"></i> Guardar Usuario
+                        <i class="fas fa-save me-2" aria-hidden="true"></i> Guardar Usuario
                     </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-
-
 
 <!-- SCRIPT DE ENVÍO DE CÓDIGO -->
 <script>

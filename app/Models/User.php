@@ -38,8 +38,7 @@ class User extends Authenticatable
     ];
     public function viviendas()
 {
-    // Ahora es una relación de Uno a Muchos (hasMany)
-    // Un usuario tiene muchas viviendas asignadas directamente por su ID
+
     return $this->hasMany(Vivienda::class, 'id_propietario', 'id_usuario');
 }
     public function rol()

@@ -200,7 +200,6 @@ class PropietarioController extends Controller
 
     public function updatePassword(Request $request) 
     {
-        // 1. Validaciones avanzadas y estrictas
         $request->validate([
             'current_password' => ['required'],
             'new_password'     => [

@@ -66,7 +66,7 @@ try {
                 'monto_alcantarillado'     => $datosValidados['monto_alcantarillado'],
                 'monto_mantenimiento_fijo' => $datosValidados['monto_mantenimiento_fijo'],
                 'porcentaje_mora'          => $datosValidados['porcentaje_mora'],
-                'qr_pago'                  => $qrVigente, // <-- Ahora sí lo guardará porque está en $fillable
+                'qr_pago'                  => $qrVigente,
                 'fecha_aplicacion'         => now(),
                 'estado'                   => 1
             ]);
@@ -119,7 +119,7 @@ try {
     }
 
     /**
-     * Actualiza la imagen del QR en la tarifa activa (estado = 1).
+     * Actualiza la imagen del QR en la tarifa activa
      */
     public function updateQR(Request $request)
     {

@@ -18,6 +18,8 @@ class Lectura extends Model
         'lectura_anterior', 
         'lectura_actual',
         'consumo_m3',      // <--- AGREGA ESTO AQUÍ
+        'estado_lectura',  // <-- AGREGAR ESTE
+        'fecha_anulacion',
     ];
 
     // Relación con la Vivienda

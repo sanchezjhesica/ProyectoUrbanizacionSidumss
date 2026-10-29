@@ -16,11 +16,10 @@ class Vivienda extends Model
         'calle', 
         'tipo_vivienda', 
         'nro_medidor', 
-        'estado_vivienda', // Mantenlo si lo usas para borrado lógico
+        'estado_vivienda',
         'id_propietario'
     ];
 
-    // Relación con el Propietario (Uno a Muchos: una vivienda tiene un dueño)
     public function propietario()
 {
     return $this->belongsTo(\App\Models\User::class, 'id_propietario', 'id_usuario');

@@ -60,7 +60,7 @@
                 <!-- SECCIÓN NUEVA: IMÁGENES RECIBIDAS -->
                 <li>
                     <a href="{{ route('admin.reportes.imagenes') }}" class="nav-link {{ request()->routeIs('admin.reportes.imagenes') ? 'active' : '' }}">
-                        <i class="fas fa-camera-retro"></i> Imágenes Recibidas
+                        <i class="fas fa-camera-retro"></i> QR RECIBIDOS
                     </a>
                 </li>
                 <!-- REEMPLAZAR ESTO: -->

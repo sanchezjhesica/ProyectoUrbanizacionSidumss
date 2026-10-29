@@ -9,15 +9,12 @@ class CobroRemesa extends Model
     protected $table = 'cobros_remesas';
     protected $primaryKey = 'id_cobro_remesa';
     public $timestamps = false;
-
     protected $fillable = [
         'id_vivienda',
+        'id_remesa_config', 
         'mes',
         'anio',
-        'monto_seguridad',
-        'monto_jardineria',
-        'monto_refacciones',
-        'total_remesa',
+        'monto_pactado',    
         'estado_pago',
         'fecha_pago'
     ];

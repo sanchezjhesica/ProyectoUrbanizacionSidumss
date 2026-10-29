@@ -17,10 +17,7 @@ use Carbon\Carbon;
 class OperadorController extends Controller
 {
     /**
-     * PÁGINA 1: DASHBOARD (Historial del operador)
-     */
-/**
-     * PÁGINA 1: DASHBOARD (Estadísticas completas de trabajo)
+     * PÁGINA 1: DASHBOARD (Estadísticas de trabajo)
      */
     public function index() 
     {
@@ -31,16 +28,18 @@ class OperadorController extends Controller
         // 1. Total de casas en la urbanización
         $totalCasas = Vivienda::count();
 
-        // 2. Lecturas del mes actual
+        // 2. Lecturas VÁLIDAS del mes actual (Ignora las anuladas en las estadísticas)
         $lecturasMesQuery = Lectura::where('periodo_mes', $mesActual)
-            ->where('periodo_anio', $anioActual);
+            ->where('periodo_anio', $anioActual)
+            ->where('estado_lectura', 'Valida'); // <-- SOLO VÁLIDAS
 
         $lecturasDelMesCount = (clone $lecturasMesQuery)->count();
         $consumoTotalMes     = (clone $lecturasMesQuery)->sum('consumo_m3') ?? 0;
         $promedioConsumo     = (clone $lecturasMesQuery)->avg('consumo_m3') ?? 0;
 
-        // 3. Lecturas registradas HOY (Soluciona el error que salía en 0)
+        // 3. Lecturas válidas registradas HOY
         $lecturasHoyCount = Lectura::where('id_operador', $idOperador)
+            ->where('estado_lectura', 'Valida') // <-- SOLO VÁLIDAS
             ->whereDate('fecha_registro', now()->toDateString())
             ->count();
 
@@ -48,7 +47,7 @@ class OperadorController extends Controller
         $porcentajeAvance = $totalCasas > 0 ? round(($lecturasDelMesCount / $totalCasas) * 100) : 0;
         $casasFaltantes   = max(0, $totalCasas - $lecturasDelMesCount);
 
-        // 5. Historial reciente (con lectura anterior y actual para verificar errores)
+        // 5. Historial reciente del operador
         $lecturas = Lectura::where('id_operador', $idOperador)
             ->with('vivienda.propietario')
             ->orderBy('fecha_registro', 'desc')
@@ -72,14 +71,14 @@ class OperadorController extends Controller
      */
     public function nuevaLectura() 
     {
-        // 1. Cargamos las viviendas con sus propietarios y orden numérico
         $viviendas = Vivienda::with('propietario')
             ->orderByRaw('CAST(nro_casa AS UNSIGNED) ASC')
             ->get();
         
-        // 2. Obtenemos la última lectura real registrada de cada casa
+        // Obtenemos la última lectura real VÁLIDA de cada casa (ignorando las anuladas)
         foreach($viviendas as $v) {
             $ultima = Lectura::where('id_vivienda', $v->id_vivienda)
+                             ->where('estado_lectura', 'Valida') // <-- SOLO VÁLIDAS
                              ->orderBy('periodo_anio', 'desc')
                              ->orderBy('periodo_mes', 'desc')
                              ->orderBy('id_lectura', 'desc')
@@ -100,9 +99,7 @@ class OperadorController extends Controller
         $anioActual = now()->year;
         $nombreMesActual = Carbon::now()->translatedFormat('F');
 
-        // =========================================================================
-        // 1. VALIDACIÓN INICIAL: REGLAS ESTRICTAS DE FORMULARIO
-        // =========================================================================
+        // 1. VALIDACIÓN INICIAL DE CAMPOS
         $request->validate([
             'id_vivienda'    => ['required', 'exists:viviendas,id_vivienda'],
             'lectura_actual' => ['required', 'numeric', 'min:0.01'],
@@ -121,30 +118,31 @@ class OperadorController extends Controller
         DB::beginTransaction();
 
         try {
-            // =========================================================================
             // 2. VALIDAR QUE LA VIVIENDA TENGA PROPIETARIO
-            // =========================================================================
             $vivienda = Vivienda::with('propietario')->findOrFail($request->id_vivienda);
             if (!$vivienda->id_propietario) {
                 throw new \Exception("La Casa #{$vivienda->nro_casa} no tiene un propietario asignado. No se puede emitir el cobro.");
             }
 
             // =========================================================================
-            // 3. VALIDAR DUPLICIDAD: ¿YA SE REGISTRÓ LECTURA ESTE MES?
+            // 3. VALIDAR DUPLICIDAD: SOLO DE LECTURAS VÁLIDAS
+            // (Si fue anulada por el admin, permitirá volver a registrarla)
             // =========================================================================
             $yaRegistrada = Lectura::where('id_vivienda', $request->id_vivienda)
                                    ->where('periodo_mes', $mesActual)
                                    ->where('periodo_anio', $anioActual)
+                                   ->where('estado_lectura', 'Valida')
                                    ->exists();
             
             if ($yaRegistrada) {
-                throw new \Exception("Ya se registró la lectura de la Casa #{$vivienda->nro_casa} para este mes ({$nombreMesActual} {$anioActual}). No se pueden duplicar lecturas en el mismo mes.");
+                throw new \Exception("Ya existe una lectura activa para la Casa #{$vivienda->nro_casa} en este mes ({$nombreMesActual} {$anioActual}).");
             }
 
             // =========================================================================
-            // 4. VALIDAR QUE LA LECTURA SEA MAYOR A LA DEL MES ANTERIOR
+            // 4. OBTENER LA ÚLTIMA LECTURA VÁLIDA PARA COMPARAR
             // =========================================================================
             $ultimaLectura = Lectura::where('id_vivienda', $request->id_vivienda)
+                                    ->where('estado_lectura', 'Valida')
                                     ->orderBy('periodo_anio', 'desc')
                                     ->orderBy('periodo_mes', 'desc')
                                     ->orderBy('id_lectura', 'desc')
@@ -159,16 +157,14 @@ class OperadorController extends Controller
 
             $consumoM3 = $lecturaActual - $lecturaAnterior;
 
-            // =========================================================================
             // 5. OBTENER TARIFAS VIGENTES
-            // =========================================================================
             $tarifa = ConfiguracionTarifa::where('estado', true)->first();
             if (!$tarifa) {
-                throw new \Exception("No hay tarifas de agua ni servicios configuradas en el sistema.");
+                throw new \Exception("No hay tarifas configuradas en el sistema.");
             }
 
             // =========================================================================
-            // 6. GUARDAR LA NUEVA LECTURA
+            // 6. GUARDAR LA NUEVA LECTURA COMO 'Valida'
             // =========================================================================
             $nuevaLectura = Lectura::create([
                 'id_vivienda'      => $request->id_vivienda,
@@ -178,6 +174,7 @@ class OperadorController extends Controller
                 'lectura_anterior' => $lecturaAnterior,
                 'lectura_actual'   => $lecturaActual,
                 'consumo_m3'       => $consumoM3,
+                'estado_lectura'   => 'Valida',
             ]);
 
             // =========================================================================
@@ -211,18 +208,19 @@ class OperadorController extends Controller
                 'estado_pago' => 'Pendiente'
             ]);
 
-            // --- AVISO 3: EXPENSAS / REMESAS ---
-            $totalRemesa = $tarifa->monto_seguridad_base + $tarifa->monto_jardineria_base + $tarifa->monto_refacciones_base;
-            CobroRemesa::create([
-                'id_vivienda'       => $request->id_vivienda,
-                'mes'               => $mesActual,
-                'anio'              => $anioActual,
-                'monto_seguridad'   => $tarifa->monto_seguridad_base,
-                'monto_jardineria'  => $tarifa->monto_jardineria_base,
-                'monto_refacciones' => $tarifa->monto_refacciones_base,
-                'total_remesa'      => $totalRemesa,
-                'estado_pago'       => 'Pendiente'
-            ]);
+            // --- AVISO 3: REMESAS / EXPENSAS ---
+            $remesasConfigs = DB::table('remesas_config')->get();
+
+            foreach ($remesasConfigs as $remesa) {
+                CobroRemesa::create([
+                    'id_vivienda'      => $request->id_vivienda,
+                    'id_remesa_config' => $remesa->id_remesa_config,
+                    'mes'              => $mesActual,
+                    'anio'             => $anioActual,
+                    'monto_pactado'    => $remesa->monto_estandar,
+                    'estado_pago'      => 'Pendiente'
+                ]);
+            }
 
             DB::commit();
             return redirect()->route('operador.lecturas.crear')

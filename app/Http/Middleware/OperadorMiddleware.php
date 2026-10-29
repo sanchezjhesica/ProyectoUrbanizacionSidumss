@@ -12,7 +12,7 @@ class OperadorMiddleware
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  \Closure(\Illuminate\Http\Request):
      */
     public function handle($request, $next) {
     if (Auth::check() && Auth::user()->id_rol == 2) {

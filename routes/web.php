@@ -84,6 +84,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/reservas/descargar-anual', [ReservaAdminController::class, 'descargarAnual'])->name('admin.reservas.descargar.anual'); // <-- NUEVA RUTA
         Route::patch('/reservas/{id}/aceptar', [ReservaAdminController::class, 'aceptar'])->name('admin.reservas.aceptar');
         Route::patch('/reservas/{id}/denegar', [ReservaAdminController::class, 'denegar'])->name('admin.reservas.denegar');
+
+        // Ruta para Anular una Lectura y sus cobros generados
+        Route::post('/lecturas/{id}/anular', [LecturaController::class, 'anularLectura'])->name('admin.lecturas.anular');
     });
 
     // =========================================================

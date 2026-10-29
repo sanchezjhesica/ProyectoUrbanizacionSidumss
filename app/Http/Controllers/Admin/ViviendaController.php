@@ -15,14 +15,11 @@ use Illuminate\Http\Request;
 class ViviendaController extends Controller
 {
     public function index() {
-        // Quitamos el filtro de 'estado_vivienda' porque no existe en la BD
-        // Cargamos la relación 'propietario' para saber quién vive ahí
         $viviendas = Vivienda::with('propietario')->get();
         return view('admin.viviendas.index', compact('viviendas'));
     }
 
     public function create() {
-        // Obtenemos solo los usuarios que tienen el Rol de Propietario (id_rol = 3)
         $propietarios = User::where('id_rol', 3)->get();
         return view('admin.viviendas.create', compact('propietarios'));
     }
@@ -59,8 +56,6 @@ class ViviendaController extends Controller
 
     public function destroy($id) {
         $vivienda = Vivienda::findOrFail($id);
-        // Como no hay columna 'estado_vivienda', hacemos un borrado físico
-        // o puedes añadir la columna a la BD si prefieres borrado lógico.
         $vivienda->delete(); 
         return redirect()->route('admin.viviendas.index')->with('success', 'Vivienda eliminada del sistema.');
     }
