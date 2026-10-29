@@ -1,7 +1,78 @@
 @extends('layouts.propietario')
 
 @push('styles')
-    @vite('resources/css/views/propietario/dashboard.css')
+    <style>
+/* VARIABLES STELLAR GREEN/BLUE */
+    :root {
+        --stellar-blue: #0e5cad;
+        --stellar-grad: linear-gradient(45deg, #79f1a4 15%, #0e5cad 85%);
+    }
+
+    .text-stellar-blue { color: var(--stellar-blue); }
+    .bg-blue-soft { background-color: rgba(14, 92, 173, 0.08); }
+    .bg-light-soft { background-color: #fdfdfd; }
+    .bg-stellar-grad { background: var(--stellar-grad); }
+    .tracking-widest { letter-spacing: 2px; font-size: 0.7rem; }
+
+    /* Avatar del Hero */
+    .user-avatar-large {
+        width: 85px;
+        height: 85px;
+        background: rgba(14, 92, 173, 0.1);
+        color: var(--stellar-blue);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3.5rem;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    }
+
+    /* Icono de Info en la tarjeta de gradiente */
+    .info-icon-box {
+        width: 60px;
+        height: 60px;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(5px);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Items de Propiedad */
+    .property-icon-box {
+        width: 40px;
+        height: 40px;
+        background: white;
+        color: var(--stellar-blue);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .property-item {
+        transition: all 0.3s;
+        border: 1px solid #eee !important;
+    }
+    .property-item:hover {
+        border-color: var(--stellar-blue) !important;
+        background-color: #fff;
+        transform: translateX(5px);
+    }
+
+    .rounded-4 { border-radius: 1.25rem !important; }
+
+    /* Ajustes para móviles */
+    @media (max-width: 768px) {
+        .user-avatar-large { width: 70px; height: 70px; font-size: 2.5rem; }
+        .display-6 { font-size: 1.5rem; }
+    }
+
+.view-style-21cbd26705 { max-width: 700px !important; }
+</style>
 @endpush
 
 @section('content')

@@ -1,7 +1,52 @@
 @extends('layouts.admin')
 
 @push('styles')
-    @vite('resources/css/views/admin/tarifas/edit.css')
+    <style>
+:root {
+        --stellar-blue: #0e5cad;
+        --stellar-grad: linear-gradient(45deg, #79f1a4 15%, #0e5cad 85%);
+        --stellar-button: linear-gradient(45deg, #22349e 0%, #8183e6 100%);
+    }
+
+    .tabs-container-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .tabs-container-scroll::-webkit-scrollbar { display: none; }
+
+    .text-stellar-blue { color: var(--stellar-blue); }
+    .uppercase-tracking { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; color: #888; }
+
+    .btn-stellar-tab {
+        background-color: white; border: 1px solid #eee; color: #666;
+        border-radius: 50px; padding: 8px 18px; font-weight: 700; font-size: 0.8rem;
+        transition: 0.3s; white-space: nowrap;
+    }
+    .nav-pills .nav-link.active { background-color: var(--stellar-blue) !important; color: white !important; }
+
+    .form-label-stellar { font-size: 0.68rem; text-transform: uppercase; font-weight: 800; color: #777; margin-bottom: 5px; display: block; }
+    .form-stellar { border: 1px solid #e0e0e0; border-radius: 8px; padding: 9px 12px; font-size: 0.9rem; }
+    .form-stellar:focus { border-color: var(--stellar-blue); box-shadow: 0 0 0 0.2rem rgba(14, 92, 173, 0.1); }
+
+    .btn-stellar-blue {
+        background: var(--stellar-button); color: white !important;
+        border-radius: 50px; font-weight: 700; border: none;
+        text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; transition: 0.3s;
+    }
+    .btn-stellar-blue:hover { opacity: 0.95; transform: translateY(-1px); }
+
+    .btn-outline-stellar { border: 1px solid var(--stellar-blue); color: var(--stellar-blue); font-weight: 600; }
+    .btn-outline-stellar:hover { background: var(--stellar-blue); color: white; }
+
+    .alert-stellar-success { background-color: #f0fff4; border-left: 5px solid #38a169; color: #276749; border-radius: 10px; }
+    .rounded-4 { border-radius: 1.25rem !important; }
+
+    @media (max-width: 768px) {
+        .card-body { padding: 1.2rem !important; }
+        .table td { padding: 10px 5px !important; }
+        .input-group-text { padding: 0.3rem 0.5rem; font-size: 0.75rem; }
+    }
+
+.view-style-3b33845933 { width: 120px !important; }
+.view-style-7f382da7d0 { min-width: 140px !important; }
+</style>
 @endpush
 
 @section('content')

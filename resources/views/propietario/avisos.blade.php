@@ -1,7 +1,90 @@
 @extends('layouts.propietario')
 
 @push('styles')
-    @vite('resources/css/views/propietario/avisos.css')
+    <style>
+:root {
+        --stellar-blue: #0e5cad;
+        --stellar-button: linear-gradient(45deg, #22349e 0%, #8183e6 100%);
+    }
+
+    .card-glass {
+        background: rgba(255, 255, 255, 0.8) !important;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    }
+
+    .text-stellar-blue { color: var(--stellar-blue); }
+    .bg-light-soft { background-color: rgba(248, 249, 250, 0.5); }
+    .bg-blue-soft { background-color: rgba(14, 92, 173, 0.08); }
+    .bg-success-soft { background-color: rgba(40, 167, 69, 0.1); }
+    .bg-danger-soft { background-color: rgba(220, 53, 69, 0.1); }
+
+    .uppercase-tracking { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 700; color: #888; }
+
+    .btn-stellar-tab {
+        background-color: rgba(255, 255, 255, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        color: #555;
+        border-radius: 12px;
+        padding: 10px 20px;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+    .nav-pills .nav-link.active {
+        background-color: var(--stellar-blue) !important;
+        color: white !important;
+        box-shadow: 0 4px 12px rgba(14, 92, 173, 0.2);
+    }
+
+    .badge-stellar {
+        display: inline-block;
+        padding: 5px 12px;
+        border-radius: 50px;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+    .btn-view-stellar {
+        background-color: white;
+        border: 1px solid var(--stellar-blue);
+        color: var(--stellar-blue);
+        border-radius: 50px;
+        padding: 6px 14px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        transition: 0.3s;
+        text-decoration: none;
+    }
+    .btn-view-stellar:hover { background-color: var(--stellar-blue); color: white; }
+
+    .btn-qr-stellar {
+        background-color: #f39c12;
+        color: white !important;
+        border-radius: 50px;
+        padding: 6px 14px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        border: none;
+        transition: 0.3s;
+    }
+    .btn-qr-stellar:hover { background-color: #d35400; transform: translateY(-2px); }
+
+    .form-label-stellar { font-size: 0.7rem; text-transform: uppercase; font-weight: 800; color: #777; margin-bottom: 5px; display: block; }
+    .form-stellar { border-radius: 10px; border: 1px solid #ddd; padding: 12px; background: #fdfdfd; font-size: 0.9rem; }
+    .btn-stellar-submit { background: var(--stellar-button); color: white !important; border: none; border-radius: 50px; font-weight: 700; transition: 0.3s; }
+    .btn-stellar-submit:hover { opacity: 0.9; transform: scale(1.02); }
+
+    .tabs-container-scroll { overflow-x: auto; padding-bottom: 5px; }
+    .rounded-4 { border-radius: 1.25rem !important; }
+
+    .alert-stellar-success { background: white; border-left: 5px solid #28a745; color: #155724; border-radius: 12px; }
+
+.view-style-dbc8d1cddf { font-size: 0.72rem !important; }
+.view-style-a118202c30 { max-width: 160px !important; height: auto !important; }
+.view-style-bd70c1ff01 { max-width: 180px !important; height: auto !important; }
+</style>
 @endpush
 
 @section('content')

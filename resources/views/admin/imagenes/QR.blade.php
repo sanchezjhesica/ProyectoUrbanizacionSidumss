@@ -1,7 +1,63 @@
 @extends('layouts.admin')
 
 @push('styles')
-    @vite('resources/css/views/admin/imagenes/QR.css')
+    <style>
+:root {
+        --stellar-blue: #0e5cad;
+        --stellar-button: linear-gradient(45deg, #22349e 0%, #8183e6 100%);
+    }
+
+    .text-stellar-blue { color: var(--stellar-blue); }
+    .bg-blue-soft { background-color: rgba(14, 92, 173, 0.08); }
+    .bg-success-soft { background-color: rgba(16, 185, 129, 0.12); color: #059669 !important; }
+    .bg-danger-soft { background-color: rgba(239, 68, 68, 0.12); color: #dc2626 !important; }
+    .bg-info-soft { background-color: rgba(14, 165, 233, 0.12); color: #0284c7 !important; }
+    .bg-warning-soft { background-color: rgba(245, 158, 11, 0.15); }
+    .text-warning-dark { color: #b45309 !important; }
+    .bg-purple-soft { background-color: rgba(139, 92, 246, 0.12); }
+    .text-purple { color: #7c3aed !important; }
+
+    .uppercase-tracking { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 700; color: #888; }
+
+    /* Previsualización del QR */
+    .qr-preview-container {
+        width: 100%;
+        max-width: 250px;
+        min-height: 250px;
+        position: relative;
+    }
+
+    .placeholder-qr {
+        width: 100%;
+        height: 250px;
+        background: #f8f9fa;
+    }
+
+    .comprobante-thumb {
+        width: 48px;
+        height: 48px;
+        object-fit: cover;
+        transition: transform 0.2s ease;
+    }
+    .comprobante-thumb:hover {
+        transform: scale(1.15);
+    }
+
+    /* Inputs y Botones */
+    .form-stellar { border-radius: 10px; border: 1px solid #eee; padding: 10px; font-size: 0.85rem; }
+    .btn-stellar-blue {
+        background: var(--stellar-button);
+        color: white !important;
+        border: none;
+        border-radius: 50px;
+        transition: 0.3s;
+    }
+    .btn-stellar-blue:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(34, 52, 158, 0.3); }
+
+    .rounded-4 { border-radius: 1.25rem !important; }
+
+.view-style-0ff0f36a38 { width: 140px !important; }
+</style>
 @endpush
 
 @section('content')

@@ -28,6 +28,7 @@ class PropietarioController extends Controller
 
         $avisosAgua = CobroAgua::with('vivienda')
             ->whereIn('id_vivienda', $misViviendasIds)
+            ->where('estado_pago', '!=', 'Anulado')
             ->orderBy('anio', 'desc')
             ->orderBy('mes', 'desc')
             ->get();
@@ -45,18 +46,20 @@ class PropietarioController extends Controller
             
         $avisosMantenimiento = CobroMantenimiento::with('vivienda')
             ->whereIn('id_vivienda', $misViviendasIds)
+            ->where('estado_pago', '!=', 'Anulado')
             ->orderBy('anio', 'desc')
             ->orderBy('mes', 'desc')
             ->get();
             
         $avisosRemesas = CobroRemesa::with('vivienda')
             ->whereIn('id_vivienda', $misViviendasIds)
+            ->where('estado_pago', '!=', 'Anulado')
             ->select(
                 'id_vivienda', 
                 'mes', 
                 'anio', 
                 'estado_pago', 
-                'total_remesa as total_mes',
+                'monto_pactado as total_mes', 
                 'id_cobro_remesa as id_referencia' 
             )
             ->orderBy('anio', 'desc')
@@ -218,6 +221,8 @@ class PropietarioController extends Controller
             'new_password.different'    => 'La nueva contraseña debe ser diferente a la contraseña actual.',
             'new_password.regex'        => 'La nueva contraseña debe tener al menos una letra mayúscula, una minúscula, un número y un carácter especial (ej: @, $, !, %, *, ?, &, #, .).',
         ]);
+
+        $user = Auth::user();
 
         $user = Auth::user();
 

@@ -1,7 +1,133 @@
 @extends('layouts.admin')
 
 @push('styles')
-    @vite('resources/css/views/admin/usuarios/index.css')
+    <style>
+:root {
+        --stellar-blue: #0e5cad;
+        --stellar-grad: linear-gradient(135deg, #79f1a4 0%, #0e5cad 100%);
+        --stellar-button: linear-gradient(45deg, #22349e 0%, #8183e6 100%);
+    }
+
+    .text-stellar-blue { color: var(--stellar-blue); }
+    .bg-blue-soft { background-color: rgba(14, 92, 173, 0.08); color: var(--stellar-blue); }
+    .alert-stellar { background-color: #e8f5e9; color: #2e7d32; border-left: 5px solid #2e7d32; }
+
+    .uppercase-tracking {
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        font-weight: 700;
+        color: #718096;
+    }
+
+    /* DISTRIBUCIÓN DE ANCHO EN LA TABLA */
+    .col-ci { width: 1%; white-space: nowrap; }
+    .col-usuario { min-width: 230px; } /* Da prioridad al nombre */
+    .col-correo { width: 25%; }
+    .col-acciones { width: 1%; white-space: nowrap; }
+
+    /* NOMBRE DE USUARIO (SIN CORTES DE SÍLABAS) */
+    .nombre-completo {
+        font-weight: 600;
+        font-size: 0.93rem;
+        white-space: nowrap; /* Evita que se parta en varias líneas feas */
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 280px; /* Si es extremadamente largo, pone '...' elegante al final */
+    }
+
+    /* Buscador responsivo */
+    .search-box-stellar {
+        width: 100%;
+        max-width: 300px;
+    }
+    @media (max-width: 575.98px) {
+        .search-box-stellar { max-width: 100%; }
+        .nombre-completo { max-width: 180px; } /* En móvil se adapta */
+    }
+    .search-box-stellar .input-group-text {
+        border-radius: 50px 0 0 50px;
+        border-color: #e2e8f0;
+        background-color: #fff;
+    }
+    .search-box-stellar input {
+        border-radius: 0 50px 50px 0;
+        border-color: #e2e8f0;
+        font-size: 0.85rem;
+    }
+    .search-box-stellar input:focus {
+        border-color: var(--stellar-blue);
+        box-shadow: none;
+    }
+
+    /* Avatar */
+    .avatar-stellar {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        background: var(--stellar-grad);
+        color: #ffffff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.75rem;
+        flex-shrink: 0;
+    }
+
+    /* BOTONES DE ACCIÓN COMPACTOS */
+    .btn-action-stellar {
+        height: 32px;
+        min-width: 32px;
+        padding: 0 9px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+        text-decoration: none;
+    }
+
+    .btn-reset-stellar {
+        background-color: #fffaf0; border-color: #fbd38d; color: #d69e2e;
+    }
+    .btn-reset-stellar:hover { background-color: #d69e2e; color: white; }
+
+    .btn-edit-stellar {
+        background-color: #ebf8ff; border-color: #bee3f8; color: #3182ce;
+    }
+    .btn-edit-stellar:hover { background-color: #3182ce; color: white; }
+
+    .btn-delete-stellar {
+        background-color: #fff5f5; border-color: #fed7d7; color: #e53e3e;
+    }
+    .btn-delete-stellar:hover { background-color: #e53e3e; color: white; }
+
+    /* Botón Nuevo */
+    .btn-stellar {
+        background: var(--stellar-button);
+        color: white !important;
+        border-radius: 50px;
+        padding: 8px 18px;
+        font-weight: 600;
+        font-size: 0.82rem;
+        border: none;
+        transition: 0.2s;
+    }
+    .btn-stellar:hover {
+        opacity: 0.92;
+        transform: translateY(-1px);
+    }
+
+.view-style-cb8a8ef79f { font-size: 0.7rem !important; }
+.view-style-8d1f4ab850 { max-width: 200px !important; }
+.view-style-21da6379ce { max-width: 230px !important; }
+</style>
 @endpush
 
 @section('content')

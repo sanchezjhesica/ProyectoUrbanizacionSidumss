@@ -1,7 +1,93 @@
 @extends('layouts.admin')
 
 @push('styles')
-    @vite('resources/css/views/admin/lecturas/index.css')
+    <style>
+/* VARIABLES STELLAR */
+    :root {
+        --stellar-blue: #0e5cad;
+        --stellar-button: linear-gradient(45deg, #22349e 0%, #8183e6 100%);
+    }
+
+    .text-stellar-blue { color: var(--stellar-blue); }
+    .bg-light-soft { background-color: #f8f9fa; }
+    .bg-success-soft { background-color: rgba(40, 167, 69, 0.1); }
+    .bg-danger-soft { background-color: rgba(220, 53, 69, 0.1); }
+    .bg-info-soft { background-color: rgba(23, 162, 184, 0.1); }
+
+    .form-label-stellar {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+        color: var(--stellar-blue);
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .uppercase-tracking {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        font-weight: 700;
+        color: #888;
+    }
+
+    /* Badges */
+    .badge-stellar {
+        display: inline-block;
+        padding: 5px 12px;
+        border-radius: 50px;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+    /* Estilo de Pestañas */
+    .btn-stellar-tab {
+        background: white;
+        border: 1px solid #ddd;
+        color: #555;
+        border-radius: 12px;
+        padding: 10px 22px;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+    .nav-pills .nav-link.active {
+        background: var(--stellar-blue) !important;
+        color: white !important;
+        box-shadow: 0 4px 10px rgba(14, 92, 173, 0.2);
+    }
+
+    /* Botones de Acción */
+    .btn-stellar-blue {
+        background: var(--stellar-button);
+        color: white !important;
+        border-radius: 50px;
+        border: none;
+        padding: 10px 20px;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        transition: 0.3s;
+    }
+    .btn-stellar-blue:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(34, 52, 158, 0.3); }
+
+    /* Botón Icono PDF */
+    .btn-icon-pdf {
+        display: inline-flex; width: 35px; height: 35px; background: #fff5f5;
+        color: #e74c3c; border-radius: 50%; align-items: center; justify-content: center;
+        text-decoration: none; border: 1px solid #f8d7da; transition: 0.3s;
+    }
+    .btn-icon-pdf:hover { background: #e74c3c; color: white; transform: scale(1.1); }
+
+    /* Alertas */
+    .alert-stellar { background: #fff; border-left: 5px solid var(--stellar-blue); color: var(--stellar-blue); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .alert-info-stellar { background: #eef7ff; border-left: 5px solid #3498db; color: #0e5cad; }
+
+    .rounded-4 { border-radius: 1rem !important; }
+
+.view-style-dbc8d1cddf { font-size: 0.72rem !important; }
+</style>
 @endpush
 
 @section('content')

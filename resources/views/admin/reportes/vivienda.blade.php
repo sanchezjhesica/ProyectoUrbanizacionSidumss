@@ -1,7 +1,54 @@
 @extends('layouts.admin')
 
 @push('styles')
-    @vite('resources/css/views/admin/reportes/vivienda.css')
+    <style>
+:root {
+        --stellar-blue: #0e5cad;
+        --stellar-button: linear-gradient(45deg, #22349e 0%, #8183e6 100%);
+    }
+
+    .text-stellar-blue { color: var(--stellar-blue); }
+    .bg-blue-soft { background-color: rgba(14, 92, 173, 0.08); }
+    .bg-success-soft { background-color: rgba(40, 167, 69, 0.12); color: #28a745 !important; }
+    .bg-danger-soft { background-color: rgba(220, 53, 69, 0.12); color: #dc3545 !important; }
+    .bg-warning-soft { background-color: rgba(255, 193, 7, 0.18); color: #b7791f !important; }
+    .bg-light-soft { background-color: #f8f9fa; }
+
+    .uppercase-tracking { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; color: #888; }
+    .letter-spacing-1 { letter-spacing: 1px; }
+
+    .badge-stellar {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 50px;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+    .form-label-stellar { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; color: #555; margin-bottom: 6px; display: block; }
+    .form-stellar { border-radius: 8px; border: 1px solid #e2e8f0; padding: 10px 14px; font-size: 0.92rem; }
+    .form-stellar:focus { border-color: var(--stellar-blue); box-shadow: 0 0 0 0.2rem rgba(14, 92, 173, 0.1); }
+
+    .btn-stellar-blue {
+        background: var(--stellar-button);
+        color: white !important;
+        border-radius: 50px;
+        font-weight: bold;
+        border: none;
+        padding: 10px 24px;
+        transition: 0.3s;
+        text-transform: uppercase;
+        font-size: 0.78rem;
+    }
+    .btn-stellar-blue:hover { opacity: 0.92; transform: translateY(-1px); }
+
+    .rounded-4 { border-radius: 1.25rem !important; }
+
+    @media print {
+        .no-print { display: none !important; }
+    }
+</style>
 @endpush
 
 @section('content')
