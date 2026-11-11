@@ -22,7 +22,7 @@ body { font-family: 'Helvetica', sans-serif; color: #333; font-size: 13px; }
 <body>
     <div class="recibo-wrapper">
         <div class="header">
-            <h1>SIDUMSS NORTE A</h1>
+            <h1>URBANIZACIÓN SIDUMSS NORTE A</h1>
             <p>RECIBO: <b>PLANILLA DE EXPENSAS Y REMESAS</b></p>
         </div>
 

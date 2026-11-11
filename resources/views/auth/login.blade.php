@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acceso SIDUMSS - Estilo Stellar</title>
+    <title>URBANIZACIÓN SIDUMSS NORTE A</title>
     
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -123,7 +123,7 @@
 
         <!-- Tarjeta de Login -->
         <div class="login-card card">
-            <h2>SIDUMSS NORTE A</h2>
+            <h2>URBANIZACIÓN SIDUMSS NORTE A</h2>
             
             <form action="{{ route('login.post') }}" method="POST">
                 @csrf
@@ -151,7 +151,7 @@
         </div>
 
         <div class="footer-text">
-            &copy; {{ date('Y') }} Urbanización Norte Plan "A"
+            &copy; {{ date('Y') }} Urbanización Sidumss Norte A
         </div>
     </div>
 

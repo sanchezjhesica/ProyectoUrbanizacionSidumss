@@ -39,7 +39,7 @@
         <table  class="view-style-69d66e5b2e">
             <tr>
                 <td>
-                    <h1 class="title">SIDUMSS - Urbanización Norte Plan A</h1>
+                    <h1 class="title">URBANIZACIÓN SIDUMSS NORTE A</h1>
                     <div class="subtitle">Reporte Anual de Reservas de Áreas Recreativas · Gestión {{ $anio }}</div>
                 </td>
                 <td  class="view-style-c0e18b9ec7">
@@ -104,7 +104,7 @@
     </div>
 
     <footer>
-        Documento oficial generado el {{ date('d/m/Y H:i') }} por el Sistema de Administración SIDUMSS.
+        Documento oficial generado el {{ date('d/m/Y H:i') }} por el Sistema de Administración URBANIZACIÓN SIDUMSS NORTE A.
     </footer>
 </body>
 </html>

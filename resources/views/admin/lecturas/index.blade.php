@@ -95,7 +95,7 @@
     <!-- 1. CABECERA RESPONSIVA -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 border-bottom pb-4 gap-3">
         <div>
-            <h2 class="text-stellar-blue mb-0 fw-bold"><i class="fas fa-search-dollar me-2"></i> Gestión Integral de Cobros</h2>
+            <h2 class="text-stellar-blue mb-0 fw-bold"><i class="fas fa-search-dollar me-2"></i> Gestión de Cobros</h2>
             <p class="text-muted mb-0">Monitoreo de consumos y control de pagos mensuales por vivienda.</p>
         </div>
     </div>

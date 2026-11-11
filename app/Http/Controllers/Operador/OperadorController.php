@@ -199,6 +199,8 @@ class OperadorController extends Controller
                 'estado_pago'          => 'Pendiente'
             ]);
 
+            //throw new \Exception('Error de prueba: fallo al generar los cobros.');
+
             // --- AVISO 2: MANTENIMIENTO ---
             CobroMantenimiento::create([
                 'id_vivienda' => $request->id_vivienda,

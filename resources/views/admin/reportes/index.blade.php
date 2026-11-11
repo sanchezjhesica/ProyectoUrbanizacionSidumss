@@ -48,7 +48,7 @@
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 mb-md-5 border-bottom pb-4 gap-3">
         <div>
             <h2 class="text-stellar-blue mb-0 fw-bold"><i class="fas fa-chart-pie me-2"></i> Reporte Económico General</h2>
-            <p class="text-muted mb-0">Balance consolidado de ingresos y egresos de la urbanización.</p>
+            <p class="text-muted mb-0">Balance de ingresos y egresos de la urbanización URBANIZACIÓN SIDUMSS NORTE A.</p>
         </div>
         <div class="no-print w-100 w-md-auto">
             {{-- BOTÓN ACTUALIZADO PARA DESCARGAR PDF --}}

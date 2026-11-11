@@ -48,7 +48,7 @@
 <body>
 
     <div class="header">
-        <h1>SIDUMSS NORTE A</h1>
+        <h1>URBANIZACIÓN SIDUMSS NORTE A</h1>
         <p><b>Reporte Económico General</b></p>
         <p>Fecha de emisión: {{ date('d/m/Y H:i') }}</p>
     </div>
@@ -123,7 +123,7 @@
     </table>
 
     <footer>
-        Sistema de Gestión SIDUMSS - Urbanización Norte Plan "A"
+        Sistema de Gestión URBANIZACIÓN SIDUMSS NORTE A
     </footer>
 
 </body>

@@ -40,10 +40,6 @@ class LecturaController extends Controller
         $queryMante = CobroMantenimiento::with('vivienda.propietario');
         if($id_vivienda) { $queryMante->where('id_vivienda', $id_vivienda); }
         $cobrosMante = $queryMante->orderBy('anio', 'desc')->orderBy('mes', 'desc')->get();
-
-        // =========================================================================
-        // 3. REMESAS AGRUPADAS: 1 SOLA FILA POR PLANILLA (EMITIDAS O ANULADAS)
-        // =========================================================================
         $queryRemesas = CobroRemesa::with(['vivienda.propietario']);
         if($id_vivienda) { $queryRemesas->where('id_vivienda', $id_vivienda); }
 

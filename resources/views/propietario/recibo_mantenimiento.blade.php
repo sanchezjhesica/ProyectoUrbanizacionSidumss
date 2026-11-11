@@ -14,7 +14,7 @@ body { font-family: sans-serif; font-size: 13px; }
 </head>
 <body>
     <div class="header">
-        <h1>Sidumss Norte A</h1>
+        <h1>URBANIZACIÓN SIDUMSS NORTE A</h1>
         <h2>AVISO DE MANTENIMIENTO</h2>
     </div>
     <p><b>Propietario:</b> {{ $cobro->vivienda->propietario->nombre }} {{ $cobro->vivienda->propietario->apellido_paterno }}</p>

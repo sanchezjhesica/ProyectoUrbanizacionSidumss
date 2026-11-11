@@ -2,7 +2,7 @@
 
 @push('styles')
     <style>
-/* VARIABLES UNIFICADAS */
+    /* VARIABLES UNIFICADAS */
     :root {
         --stellar-blue: #0e5cad;
         --stellar-button: linear-gradient(45deg, #22349e 0%, #8183e6 100%);
@@ -90,7 +90,7 @@
             <form action="{{ route('admin.usuarios.update', $usuario->id_usuario) }}" method="POST">
                 @csrf
                 @method('PUT')
-
+                <input type="hidden" name="id_rol" value="{{ $usuario->id_rol }}">
                 <!-- Sección: Identidad -->
                 <div class="form-section mb-5">
                     <h5 class="text-stellar-blue fw-bold mb-4 border-bottom pb-2">
@@ -101,18 +101,27 @@
                         <label class="form-label-stellar">Nombre Completo</label>
                         <div class="input-group">
                             <span class="input-group-text bg-light border-end-0"><i class="fas fa-user text-muted"></i></span>
-                            <input type="text" name="nombre" class="form-control form-stellar border-start-0" value="{{ $usuario->nombre }}" required>
+                            <input type="text" name="nombre" class="form-control form-stellar border-start-0 @error('nombre') is-invalid @enderror" value="{{ old('nombre', $usuario->nombre) }}" required>
                         </div>
+                        @error('nombre')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <div class="row g-3 g-md-4">
                         <div class="col-md-6">
                             <label class="form-label-stellar">Apellido Paterno</label>
-                            <input type="text" name="apellido_paterno" class="form-control form-stellar" value="{{ $usuario->apellido_paterno }}">
+                            <input type="text" name="apellido_paterno" class="form-control form-stellar @error('apellido_paterno') is-invalid @enderror" value="{{ old('apellido_paterno', $usuario->apellido_paterno) }}">
+                            @error('apellido_paterno')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="col-md-6">
                             <label class="form-label-stellar">Apellido Materno</label>
-                            <input type="text" name="apellido_materno" class="form-control form-stellar" value="{{ $usuario->apellido_materno }}">
+                            <input type="text" name="apellido_materno" class="form-control form-stellar @error('apellido_materno') is-invalid @enderror" value="{{ old('apellido_materno', $usuario->apellido_materno) }}">
+                            @error('apellido_materno')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
                 </div>
@@ -127,15 +136,35 @@
                             <label class="form-label-stellar">CI (Cédula de Identidad)</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0"><i class="fas fa-fingerprint text-muted"></i></span>
-                                <input type="text" name="ci" class="form-control form-stellar border-start-0" value="{{ $usuario->ci }}" required>
+                                <input type="text" name="ci" class="form-control form-stellar border-start-0 @error('ci') is-invalid @enderror" value="{{ old('ci', $usuario->ci) }}" required>
                             </div>
+                            @error('ci')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="col-md-6">
                             <label class="form-label-stellar">Correo Electrónico</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0"><i class="fas fa-envelope text-muted"></i></span>
-                                <input type="email" name="email" class="form-control form-stellar border-start-0" value="{{ $usuario->email }}" required>
+                                <input type="email" name="email" class="form-control form-stellar border-start-0 @error('email') is-invalid @enderror" value="{{ old('email', $usuario->email) }}" required>
                             </div>
+                            @error('email')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <!-- NUEVO: Campo Teléfono / Celular agregado -->
+                    <div class="row g-3 g-md-4 mt-3">
+                        <div class="col-md-6">
+                            <label class="form-label-stellar">Teléfono / Celular</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-phone text-muted"></i></span>
+                                <input type="text" name="telefono" class="form-control form-stellar border-start-0 @error('telefono') is-invalid @enderror" value="{{ old('telefono', $usuario->telefono) }}">
+                            </div>
+                            @error('telefono')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
                 </div>
@@ -153,6 +182,4 @@
         </div>
     </div>
 </div>
-
-
 @endsection

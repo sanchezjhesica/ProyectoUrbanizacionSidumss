@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Reporte SIDUMSS - Casa #{{ $vivienda->nro_casa }}</title>
+    <title>Reporte URBANIZACIÓN SIDUMSS NORTE A- Casa #{{ $vivienda->nro_casa }}</title>
     <style>
 @page { margin: 12px; }
         body {
@@ -244,7 +244,7 @@
     </div>
 
     <footer>
-        Documento Oficial de la Urbanización Sidumss Norte Plan A - Generado el {{ date('d/m/Y H:i') }}
+        Documento Oficial de la URBANIZACIÓN SIDUMSS NORTE A - Generado el {{ date('d/m/Y H:i') }}
     </footer>
 
 </body>

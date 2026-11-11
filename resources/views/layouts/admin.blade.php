@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIDUMSS - Panel de Administración</title>
+    <title>URBANIZACIÓN SIDUMSS NORTE A - Panel de Administración</title>
     
     <!-- Bootstrap 5 y Font Awesome -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> 
@@ -184,7 +184,7 @@
     <!-- SIDEBAR LATERAL -->
     <nav id="sidebar">
         <div class="sidebar-header d-none d-lg-block">
-            <h1>SIDUMSS</h1>
+            <h1> URBANIZACIÓN SIDUMSS NORTE A</h1>
             <p class="small text-muted text-uppercase tracking-wider">Administración</p>
         </div>
 

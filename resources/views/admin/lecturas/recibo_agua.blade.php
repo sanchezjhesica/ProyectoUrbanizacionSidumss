@@ -23,7 +23,7 @@ body { font-family: 'Helvetica', sans-serif; color: #333; font-size: 13px; }
 <body>
     <div class="recibo-wrapper">
         <div class="header">
-            <h1>SIDUMSS NORTE A</h1>
+            <h1>URBANIZACIÓN SIDUMSS NORTE A</h1>
             <p>RECIBO: <b>SERVICIO DE AGUA POTABLE</b></p>
         </div>
 
@@ -46,7 +46,6 @@ body { font-family: 'Helvetica', sans-serif; color: #333; font-size: 13px; }
                 <th>Consumo m³</th>
             </tr>
             <tr>
-                {{-- AQUÍ ESTABA EL ERROR: Añadimos ?? 0 para evitar el crash --}}
                 <td>{{ number_format($cobro->lectura->lectura_anterior ?? 0, 2) }}</td>
                 <td>{{ number_format($cobro->lectura->lectura_actual ?? 0, 2) }}</td>
                 <td><b>{{ number_format($cobro->lectura->consumo_m3 ?? 0, 2) }} m³</b></td>

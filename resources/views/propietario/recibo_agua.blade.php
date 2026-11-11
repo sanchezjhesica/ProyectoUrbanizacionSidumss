@@ -23,7 +23,7 @@ body { font-family: sans-serif; color: #333; font-size: 13px; }
     <div class="status"> {{ strtoupper($cobro->estado_pago) }} </div>
 
     <div class="header">
-        <h1>Sidumss Norte A</h1>
+        <h1>URBANIZACIÓN SIDUMSS NORTE A</h1>
         <p>Aviso de Cobro: <b>SERVICIO DE AGUA POTABLE</b></p>
     </div>
 

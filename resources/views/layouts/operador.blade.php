@@ -168,7 +168,7 @@
     <!-- SIDEBAR OPERADOR -->
     <nav id="sidebar">
         <div class="sidebar-header d-none d-lg-block">
-            <h1>SIDUMSS NORTE A</h1>
+            <h1>URBANIZACIÓN SIDUMSS NORTE A</h1>
             <p class="small text-muted text-uppercase tracking-wider">Panel de trabajo del Operador</p>
         </div>
 

@@ -53,15 +53,16 @@ class PropietarioController extends Controller
             
         $avisosRemesas = CobroRemesa::with('vivienda')
             ->whereIn('id_vivienda', $misViviendasIds)
-            ->where('estado_pago', '!=', 'Anulado')
+            ->where('estado_pago', '!=', 'Anulado') // Excluye cualquier registro anulado desde el inicio
             ->select(
                 'id_vivienda', 
                 'mes', 
                 'anio', 
-                'estado_pago', 
-                'monto_pactado as total_mes', 
-                'id_cobro_remesa as id_referencia' 
+                DB::raw('MAX(estado_pago) as estado_pago'), 
+                DB::raw('SUM(monto_pactado) as total_mes'), 
+                DB::raw('MAX(id_cobro_remesa) as id_referencia')
             )
+            ->groupBy('id_vivienda', 'mes', 'anio')
             ->orderBy('anio', 'desc')
             ->orderBy('mes', 'desc')
             ->get();

@@ -26,7 +26,7 @@ body { font-family: 'Segoe UI', sans-serif; color: #333; }
 <body>
 <div class="recibo-wrapper">
     <div class="header">
-        <h1>SIDUMSS NORTE A</h1>
+        <h1>URBANIZACIÓN SIDUMSS NORTE A</h1>
         <p>RECIBO: <b>MANTENIMIENTO FIJO</b></p>
     </div>
 

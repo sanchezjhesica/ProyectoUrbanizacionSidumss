@@ -62,7 +62,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
         <div>
             <h2 class="text-stellar-blue fw-bold mb-0"><i class="fas fa-tachometer-alt me-2"></i> Panel de Control</h2>
-            <p class="text-muted mb-0">Resumen general de la Urbanización</p>
+            <p class="text-muted mb-0">Resumen general de la URBANIZACIÓN SIDUMSS NORTE A</p>
         </div>
         <div class="d-none d-md-block">
             <span class="badge bg-blue-soft text-stellar-blue p-2 px-3 rounded-pill fw-bold">

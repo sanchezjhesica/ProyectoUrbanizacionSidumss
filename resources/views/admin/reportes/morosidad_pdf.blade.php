@@ -28,7 +28,7 @@ body { font-family: 'Helvetica', sans-serif; font-size: 11px; color: #333; }
 <body>
 
     <div class="header">
-        <h1>SIDUMSS NORTE A</h1>
+        <h1>URBANIZACIÓN SIDUMSS NORTE A</h1>
         <p><b>Reporte de Morosidad por Periodo</b></p>
         <p>Fecha de emisión: {{ date('d/m/Y H:i') }}</p>
     </div>
